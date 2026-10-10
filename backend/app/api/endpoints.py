@@ -76,11 +76,18 @@ async def get_alerts(
 async def get_alert_by_id(alert_id: str, lang: Optional[str] = Query("en", description="Target language code")):
     try:
         live_alerts = await live_geo_service.flood_alerts()
-    except Exception:
-        raise HTTPException(status_code=503, detail="Live disaster feed is temporarily unavailable.")
-    alert = next((item for item in live_alerts if item.id == alert_id), None)
+        alert = next((item for item in live_alerts if item.id == alert_id), None)
+    except Exception as error:
+        alert = alert_service.get_alert_by_id(alert_id)
+        if alert is None:
+            raise HTTPException(status_code=503, detail="Live disaster feed is temporarily unavailable.") from error
+
     if alert is None:
-        raise HTTPException(status_code=404, detail="Alert not found in the current live feed")
+        alert = alert_service.get_alert_by_id(alert_id)
+
+    if not alert:
+        raise HTTPException(status_code=404, detail="Alert not found")
+
     if lang and lang != "en":
         alert.translated_title = translation_service.translate_text(alert.title, lang)
         alert.translated_description = translation_service.translate_text(alert.description, lang)
