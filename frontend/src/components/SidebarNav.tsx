@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../translations';
 import { getCache, saveCache } from '../utils/offlineCache';
+import { apiUrl } from '../utils/api';
 
 interface SidebarNavProps {
   currentLang: string;
@@ -61,7 +62,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     }
     const cachedProfile = getCache<UserProfileData>(`profile_${userId}`)?.data;
     if (cachedProfile) setUserProfile(cachedProfile);
-    fetch(`/api/users/${userId}`)
+    fetch(apiUrl(`/api/users/${userId}`))
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data) {

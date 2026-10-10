@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'crisiscompass-shell-v1';
+const SHELL_CACHE = 'crisiscompass-shell-v2';
 const TILE_CACHE = 'crisiscompass-map-tiles-v1';
 const SHELL_URLS = ['/', '/index.html', '/favicon.svg', '/icons.svg'];
 
@@ -48,10 +48,17 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (url.origin === self.location.origin && request.destination !== 'document') {
-    event.respondWith(caches.match(request).then((cached) => cached || fetch(request).then((response) => {
-      if (response.ok) caches.open(SHELL_CACHE).then((cache) => cache.put(request, response.clone()));
+    event.respondWith(caches.match(request).then(async (cached) => {
+      if (cached) return cached;
+      const response = await fetch(request);
+      if (response.ok) {
+        // Clone before returning the response; asynchronous cache callbacks can run
+        // after the browser has already consumed its body.
+        const cacheCopy = response.clone();
+        await caches.open(SHELL_CACHE).then((cache) => cache.put(request, cacheCopy)).catch(() => undefined);
+      }
       return response;
-    })));
+    }));
     return;
   }
 

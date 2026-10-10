@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { BarChart3, AlertTriangle, CheckCircle, Clock, Users, Phone, ShieldCheck, LogOut } from 'lucide-react';
+import { apiUrl } from '../utils/api';
 
 interface Incident {
   id: string;
@@ -51,7 +52,7 @@ export default function AdminDashboard() {
   const [selectedIncident, setSelectedIncident] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState('all');
 
-  const authorizedFetch = useCallback((path: string, init: RequestInit = {}) => fetch(`/api${path}`, {
+  const authorizedFetch = useCallback((path: string, init: RequestInit = {}) => fetch(apiUrl(`/api${path}`), {
     ...init,
     headers: { ...init.headers, Authorization: `Bearer ${token}` },
   }), [token]);
@@ -61,7 +62,7 @@ export default function AdminDashboard() {
     setLoginLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/admin/login', {
+      const response = await fetch(apiUrl('/api/admin/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ access_code: accessCode }),

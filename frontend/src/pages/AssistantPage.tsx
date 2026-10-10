@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChatResponse } from '../types';
 import { Bot, Send, ShieldCheck, AlertCircle, Sparkles, ExternalLink, HelpCircle, Mic, Volume2, VolumeX } from 'lucide-react';
 import { TRANSLATIONS } from '../translations';
+import { apiUrl } from '../utils/api';
 
 interface AssistantPageProps {
   currentLang: string;
@@ -84,7 +85,7 @@ export const AssistantPage: React.FC<AssistantPageProps> = ({ currentLang }) => 
     setLoading(true);
 
     try {
-      const res = await fetch('/api/assistant/chat', {
+      const res = await fetch(apiUrl('/api/assistant/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

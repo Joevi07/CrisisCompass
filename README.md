@@ -149,6 +149,10 @@ After running the app (see section below):
    ```
    *Open `http://localhost:5173` in your browser.*
 
+### Production deployment (Vercel frontend)
+
+The frontend and FastAPI backend must both be deployed. Vercel serving the static frontend by itself does not create the `/api` endpoints. Deploy `backend/` to a Python-capable host, then set the Vercel project environment variable `VITE_API_BASE_URL` to that backend's public origin (for example, `https://your-api-service.example.com`, with no trailing slash) and redeploy the frontend. Configure the backend's `CORS_ALLOWED_ORIGINS` to include `https://crisiscompass-three.vercel.app` and any custom frontend domain. Do not put admin secrets in frontend variables.
+
 ---
 
 ## 🧪 Running Automated Tests

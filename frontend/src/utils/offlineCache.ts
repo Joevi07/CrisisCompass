@@ -1,4 +1,5 @@
 // Utility module for handling low-network and offline data persistence in CrisisCompass
+import { apiUrl } from './api';
 
 export interface CachedPayload<T> {
   data: T;
@@ -59,7 +60,7 @@ export async function fetchWithOfflineFallback<T>(
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), 8000);
   try {
-    const res = await fetch(url, { ...options, signal: controller.signal });
+    const res = await fetch(apiUrl(url), { ...options, signal: controller.signal });
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const data: T = await res.json();
     saveCache(cacheKey, data);

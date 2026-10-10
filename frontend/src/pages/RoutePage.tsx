@@ -6,6 +6,7 @@ import {
 import { MapContainer, TileLayer, Marker, Popup, Polyline, Polygon } from 'react-leaflet';
 import L from 'leaflet';
 import { TRANSLATIONS } from '../translations';
+import { apiUrl } from '../utils/api';
 
 interface Waypoint {
   lat: number;
@@ -88,7 +89,7 @@ export default function RoutePage() {
 
     setLoading(true);
     try {
-      const response = await fetch('/api/route/safe', {
+      const response = await fetch(apiUrl('/api/route/safe'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

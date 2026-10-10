@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ConfigStatusResponse } from '../types';
 import { ShieldCheck, CheckCircle2, Globe, Database, Server, Info, AlertTriangle } from 'lucide-react';
 import { TRANSLATIONS, SUPPORTED_LANGUAGES } from '../translations';
+import { apiUrl } from '../utils/api';
 
 interface SettingsPageProps {
   currentLang: string;
@@ -13,12 +14,12 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentLang, onLangu
   const [trustedSources, setTrustedSources] = useState<string[]>([]);
 
   useEffect(() => {
-    fetch('/api/config/status')
+    fetch(apiUrl('/api/config/status'))
       .then(res => res.json())
       .then(data => setConfig(data))
       .catch(err => console.error(err));
 
-    fetch('/api/sources')
+    fetch(apiUrl('/api/sources'))
       .then(res => res.json())
       .then(data => setTrustedSources(data.trusted_domains || []))
       .catch(err => console.error(err));

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 
 import { fetchWithOfflineFallback } from '../utils/offlineCache';
+import { apiUrl } from '../utils/api';
 
 interface AlertsPageProps {
   currentLang: string;
@@ -181,7 +182,7 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
     const fetchTranslation = async () => {
       try {
         // Query backend alert endpoint with specific language
-        const response = await fetch(`/api/alerts/${selectedAlertForTrans.id}?lang=${targetLang}`);
+        const response = await fetch(apiUrl(`/api/alerts/${selectedAlertForTrans.id}?lang=${targetLang}`));
         if (!response.ok) {
           throw new Error(`Failed to load translation for ${currentTargetLangObj.name}`);
         }

@@ -4,6 +4,7 @@ import { SUPPORTED_LANGUAGES } from '../translations';
 import { getCache, saveCache } from '../utils/offlineCache';
 import { ArrowRight, Compass, ShieldCheck, WifiOff } from 'lucide-react';
 import heroImage from '../assets/coastal-traveler.jpg';
+import { apiUrl } from '../utils/api';
 
 
 interface RegistrationFormData {
@@ -55,7 +56,7 @@ export default function RegistrationPage({ onGuest }: RegistrationPageProps) {
         let user = cached;
         if (navigator.onLine) {
           try {
-            const response = await fetch(`/api/users/email/${encodeURIComponent(formData.email.trim())}`, { signal: AbortSignal.timeout(5000) });
+            const response = await fetch(apiUrl(`/api/users/email/${encodeURIComponent(formData.email.trim())}`), { signal: AbortSignal.timeout(5000) });
             if (response.ok) {
               user = await response.json();
               saveCache(`profile_email_${formData.email.trim().toLowerCase()}`, user);
@@ -82,7 +83,7 @@ export default function RegistrationPage({ onGuest }: RegistrationPageProps) {
         return;
       }
 
-      const response = await fetch('/api/users/register', {
+      const response = await fetch(apiUrl('/api/users/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle, MapPin, Phone, Camera, CheckCircle2, Share2, ShieldAlert, PhoneCall } from 'lucide-react';
 import { IncidentReport } from '../types';
+import { apiUrl } from '../utils/api';
 
 export default function ReportPage() {
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ export default function ReportPage() {
 
   const fetchIncidents = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/users/${userId}/incidents`);
+      const response = await fetch(apiUrl(`/api/users/${userId}/incidents`));
       if (response.ok) {
         const data = await response.json();
         setIncidents(data);
@@ -116,7 +117,7 @@ export default function ReportPage() {
       const timeoutId = window.setTimeout(() => controller.abort(), 10000);
       let response: Response;
       try {
-        response = await fetch(`/api/sos?user_id=${userId}`, {
+        response = await fetch(apiUrl(`/api/sos?user_id=${userId}`), {
           method: 'POST',
           signal: controller.signal,
           headers: { 'Content-Type': 'application/json' },
@@ -156,7 +157,7 @@ export default function ReportPage() {
     setSuccess('');
 
     try {
-      const response = await fetch(`http://localhost:8000/api/incidents?user_id=${userId}`, {
+      const response = await fetch(apiUrl(`/api/incidents?user_id=${userId}`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

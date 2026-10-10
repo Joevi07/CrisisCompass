@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { TRANSLATIONS as translations, SUPPORTED_LANGUAGES } from '../translations';
 import { fetchWithOfflineFallback, saveCache } from '../utils/offlineCache';
+import { apiUrl } from '../utils/api';
 import { 
   User, Mail, Phone, MapPin, Globe, HeartPulse, 
   ShieldAlert, Calendar, Edit3, Save, X, Trash2, 
@@ -119,7 +120,7 @@ export default function ProfilePage() {
       // Fallback 1: lookup by stored email
       if (storedEmail) {
         try {
-          const emailRes = await fetch(`/api/users/email/${encodeURIComponent(storedEmail.trim())}`);
+          const emailRes = await fetch(apiUrl(`/api/users/email/${encodeURIComponent(storedEmail.trim())}`));
           if (emailRes.ok) {
             const data = await emailRes.json();
             setUser(data);
@@ -153,7 +154,7 @@ export default function ProfilePage() {
         // Try registering in backend database if network is alive
         if (navigator.onLine && storedEmail) {
           try {
-            const regRes = await fetch('/api/users/register', {
+            const regRes = await fetch(apiUrl('/api/users/register'), {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -230,7 +231,7 @@ export default function ProfilePage() {
     try {
       let savedProfile: UserProfile | null = null;
       if (targetId && navigator.onLine) {
-        const response = await fetch(`/api/users/${targetId}`, {
+        const response = await fetch(apiUrl(`/api/users/${targetId}`), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatePayload),
@@ -278,7 +279,7 @@ export default function ProfilePage() {
     const targetId = user?.id || currentUserId;
     try {
       if (targetId && navigator.onLine) {
-        await fetch(`/api/users/${targetId}`, { method: 'DELETE' });
+        await fetch(apiUrl(`/api/users/${targetId}`), { method: 'DELETE' });
       }
       localStorage.removeItem('userId');
       localStorage.removeItem('userEmail');
