@@ -6,6 +6,11 @@ import { AlertsPage } from './pages/AlertsPage';
 import { SafetyMapPage } from './pages/SafetyMapPage';
 import { AssistantPage } from './pages/AssistantPage';
 import { SettingsPage } from './pages/SettingsPage';
+import RegistrationPage from './pages/RegistrationPage';
+import ProfilePage from './pages/ProfilePage';
+import ReportPage from './pages/ReportPage';
+import RoutePage from './pages/RoutePage';
+import AdminDashboard from './pages/AdminDashboard';
 import { TRANSLATIONS } from './translations';
 import { PhoneCall } from 'lucide-react';
 
@@ -44,6 +49,12 @@ export const App: React.FC = () => {
             <Route path="/map" element={<SafetyMapPage />} />
             <Route path="/assistant" element={<AssistantPage currentLang={currentLang} />} />
             <Route path="/settings" element={<SettingsPage currentLang={currentLang} onLanguageChange={setCurrentLang} />} />
+            <Route path="/register" element={<RegistrationPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/:userId" element={<ProfilePage />} />
+            <Route path="/report" element={<ReportPage />} />
+            <Route path="/route" element={<RoutePage />} />
+            <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
         </main>
 

@@ -49,6 +49,53 @@ class DBFacility(Base):
     data_origin = Column(String, nullable=False)
     source_notes = Column(String, nullable=False)
 
+class DBUser(Base):
+    __tablename__ = "users"
+    
+    id = Column(String, primary_key=True, index=True)
+    email = Column(String, unique=True, nullable=False, index=True)
+    full_name = Column(String, nullable=False)
+    phone_number = Column(String, nullable=True)
+    destination = Column(String, nullable=False)
+    language_preference = Column(String, default="en")  # en, ta, hi, fr, es
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    emergency_contact = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+    is_active = Column(Boolean, default=True)
+
+class DBIncident(Base):
+    __tablename__ = "incidents"
+    
+    id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, nullable=False, index=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    incident_type = Column(String, nullable=False)  # flood, cyclone, storm, etc.
+    severity = Column(String, nullable=False)  # Low, Moderate, High, Critical
+    photo_url = Column(String, nullable=True)
+    status = Column(String, default="unverified")  # unverified, verified, resolved
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+    verification_status = Column(String, default="unverified")
+    verified_by = Column(String, nullable=True)  # admin user id
+
+class DBSOS(Base):
+    __tablename__ = "sos_requests"
+    
+    id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, nullable=False, index=True)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    status = Column(String, default="active")  # active, resolved, cancelled
+    message = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    resolved_at = Column(DateTime, nullable=True)
+    resolved_by = Column(String, nullable=True)
+
 def get_db():
     db = SessionLocal()
     try:
