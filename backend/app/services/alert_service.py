@@ -34,8 +34,6 @@ class AlertService:
                 recommended_action="Do not attempt to traverse flooded roads. Move valuables and yourself to 1st floor or higher. Keep mobile devices charged."
             ),
             AlertBase(
-<<<<<<< HEAD
-=======
                 id="alert-demo-002",
                 title="Orange Alert: Severe Cyclone Approaching Coast",
                 description="Severe cyclonic storm system tracking Northwest across Bay of Bengal with sustained winds of 90-110 km/h and gusts up to 125 km/h. High tidal surges predicted along coastal areas.",
@@ -55,7 +53,6 @@ class AlertService:
                 recommended_action="Secure loose outdoor furniture, avoid beachside promenades, and heed district administration evacuation orders for coastal zones."
             ),
             AlertBase(
->>>>>>> a901275e6d31aa999348afe8b3571f799ae11cdb
                 id="alert-demo-003",
                 title="Yellow Advisory: Inundation and Transport Disruption",
                 description="Heavy continuous monsoon downpour leading to water accumulation along tourist transit corridors, local train underpasses, and arterial highways.",
@@ -141,8 +138,6 @@ class AlertService:
                 data_origin=DataOrigin.SIMULATED_DEMO_DATA,
                 source_notes="24/7 Level 1 Trauma Emergency facility."
             ),
-<<<<<<< HEAD
-=======
             # Mumbai Facilities
             Facility(
                 id="fac-mumbai-shelter-1",
@@ -174,7 +169,6 @@ class AlertService:
                 data_origin=DataOrigin.SIMULATED_DEMO_DATA,
                 source_notes="Designated disaster receiving tertiary healthcare and trauma center."
             )
->>>>>>> a901275e6d31aa999348afe8b3571f799ae11cdb
         ]
 
         self.hazard_zones: List[HazardZone] = [

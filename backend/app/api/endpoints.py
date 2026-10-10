@@ -45,14 +45,10 @@ async def get_weather(location: str = Query("chennai", description="City or dest
 async def get_alerts(
     location: Optional[str] = Query(None, description="Filter by location keyword"),
     severity: Optional[str] = Query(None, description="Filter by Low, Moderate, High, Critical"),
-<<<<<<< HEAD
     lang: Optional[str] = Query("en", description="Target language code"),
     latitude: Optional[float] = Query(None, ge=-90, le=90),
     longitude: Optional[float] = Query(None, ge=-180, le=180),
     radius_km: float = Query(500, ge=1, le=2000),
-=======
-    lang: Optional[str] = Query("en", description="Target language code")
->>>>>>> a901275e6d31aa999348afe8b3571f799ae11cdb
 ):
     try:
         alerts = await live_geo_service.flood_alerts(location, latitude, longitude, radius_km)
@@ -77,18 +73,17 @@ async def get_alerts(
     )
 
 @router.get("/alerts/{alert_id}", response_model=AlertBase)
-<<<<<<< HEAD
-async def get_alert_by_id(alert_id: str):
+async def get_alert_by_id(alert_id: str, lang: Optional[str] = Query("en", description="Target language code")):
+    alert = None
     try:
         live_alerts = await live_geo_service.flood_alerts()
+        alert = next((item for item in live_alerts if item.id == alert_id), None)
     except Exception:
-        raise HTTPException(status_code=503, detail="Live disaster feed is temporarily unavailable.")
-    alert = next((item for item in live_alerts if item.id == alert_id), None)
+        pass
+    
     if alert is None:
-        raise HTTPException(status_code=404, detail="Alert not found in the current live feed")
-=======
-def get_alert_by_id(alert_id: str, lang: Optional[str] = Query("en", description="Target language code")):
-    alert = alert_service.get_alert_by_id(alert_id)
+        alert = alert_service.get_alert_by_id(alert_id)
+        
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
     
@@ -97,7 +92,6 @@ def get_alert_by_id(alert_id: str, lang: Optional[str] = Query("en", description
         alert.translated_description = translation_service.translate_text(alert.description, lang)
         alert.translated_action = translation_service.translate_text(alert.recommended_action, lang)
         alert.translation_lang = lang
->>>>>>> a901275e6d31aa999348afe8b3571f799ae11cdb
     return alert
 
 @router.get("/map/hazards", response_model=List[HazardZone])
