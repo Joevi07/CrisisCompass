@@ -1,10 +1,17 @@
 import os
+from pathlib import Path
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).resolve().parents[2] / ".env")
+except ImportError:
+    pass
 
 class Settings:
     APP_NAME: str = "TravelTech: CrisisCompass"
     APP_VERSION: str = "1.0.0"
     APP_MODE: str = os.getenv("APP_MODE", "demo")
-    DEBUG: bool = os.getenv("DEBUG", "True").lower() == "true"
+    DEBUG: bool = os.getenv("DEBUG", "False").lower() == "true"
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./crisis_compass.db")
     
     # Weather
@@ -30,5 +37,14 @@ class Settings:
     
     # CORS
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    CORS_ALLOWED_ORIGINS: list[str] = [
+        origin.strip().rstrip("/")
+        for origin in os.getenv("CORS_ALLOWED_ORIGINS", os.getenv("FRONTEND_URL", "http://localhost:5173")).split(",")
+        if origin.strip()
+    ]
+
+    # Admin dashboard authentication. Configure both values in backend/.env.
+    ADMIN_ACCESS_CODE: str | None = os.getenv("ADMIN_ACCESS_CODE") or None
+    ADMIN_TOKEN_SECRET: str | None = os.getenv("ADMIN_TOKEN_SECRET") or None
 
 settings = Settings()

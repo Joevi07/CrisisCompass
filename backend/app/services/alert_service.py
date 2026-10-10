@@ -34,25 +34,6 @@ class AlertService:
                 recommended_action="Do not attempt to traverse flooded roads. Move valuables and yourself to 1st floor or higher. Keep mobile devices charged."
             ),
             AlertBase(
-                id="alert-demo-002",
-                title="Orange Alert: Severe Cyclone Approaching Coast",
-                description="Cyclone system tracking Northwest with sustained winds of 90-110 km/h with gusts up to 125 km/h. High tidal surges predicted.",
-                hazard_type=HazardType.CYCLONE,
-                severity=SeverityLevel.HIGH,
-                affected_location="Miami, USA (Coastal Biscayne Corridor)",
-                latitude=25.7617,
-                longitude=-80.1918,
-                radius_km=30.0,
-                issuing_authority="National Hurricane Center (NOAA)",
-                source_url="https://nhc.noaa.gov/cyclone-bulletin-2026",
-                published_at=now - timedelta(hours=5),
-                updated_at=now - timedelta(hours=1),
-                valid_until=now + timedelta(hours=24),
-                verification_status=VerificationStatus.OFFICIAL,
-                data_origin=DataOrigin.SIMULATED_DEMO_DATA,
-                recommended_action="Secure loose outdoor furniture, avoid beachside roads, and heed official evacuation orders for zone A."
-            ),
-            AlertBase(
                 id="alert-demo-003",
                 title="Yellow Advisory: Inundation and Transport Disruption",
                 description="Heavy continuous downpour leading to water accumulation along tourist transit corridors and metro underpasses.",
@@ -138,37 +119,6 @@ class AlertService:
                 data_origin=DataOrigin.SIMULATED_DEMO_DATA,
                 source_notes="24/7 Level 1 Trauma Emergency facility."
             ),
-            # Miami Facilities
-            Facility(
-                id="fac-miami-shelter-1",
-                name="Biscayne High School Storm Shelter",
-                facility_type=FacilityType.SHELTER,
-                latitude=25.7680,
-                longitude=-80.1990,
-                address="Miami-Dade County Public Shelter #14",
-                contact_number="+1 305 468 5400",
-                capacity=600,
-                current_occupancy=210,
-                is_open=True,
-                status_verified_at=now - timedelta(hours=1),
-                data_origin=DataOrigin.SIMULATED_DEMO_DATA,
-                source_notes="ADA compliant pet-friendly emergency hurricane shelter."
-            ),
-            Facility(
-                id="fac-miami-hosp-1",
-                name="Jackson Memorial Emergency Care",
-                facility_type=FacilityType.HOSPITAL,
-                latitude=25.7905,
-                longitude=-80.2110,
-                address="1611 NW 12th Ave, Miami",
-                contact_number="+1 305 585 1111",
-                capacity=1500,
-                current_occupancy=1100,
-                is_open=True,
-                status_verified_at=now - timedelta(minutes=20),
-                data_origin=DataOrigin.SIMULATED_DEMO_DATA,
-                source_notes="Designated disaster receiving trauma hospital."
-            )
         ]
 
         self.hazard_zones: List[HazardZone] = [

@@ -171,7 +171,11 @@ class SOSService:
     @staticmethod
     def create_sos(db: Session, user_id: str, sos_data: SOSCreate) -> SOSResponse:
         """Create a new SOS request."""
-        sos_id = str(uuid.uuid4())
+        sos_id = sos_data.request_id or str(uuid.uuid4())
+        if sos_data.request_id:
+            existing_request = db.query(DBSOS).filter(DBSOS.id == sos_id).first()
+            if existing_request:
+                return SOSService._db_sos_to_response(existing_request, db)
         new_sos = DBSOS(
             id=sos_id,
             user_id=user_id,
@@ -183,7 +187,7 @@ class SOSService:
         db.commit()
         db.refresh(new_sos)
         
-        return SOSService._db_sos_to_response(new_sos)
+        return SOSService._db_sos_to_response(new_sos, db)
     
     @staticmethod
     def get_sos(db: Session, sos_id: str) -> SOSResponse:
@@ -191,13 +195,13 @@ class SOSService:
         sos = db.query(DBSOS).filter(DBSOS.id == sos_id).first()
         if not sos:
             raise ValueError(f"SOS request {sos_id} not found")
-        return SOSService._db_sos_to_response(sos)
+        return SOSService._db_sos_to_response(sos, db)
     
     @staticmethod
     def get_active_sos_requests(db: Session) -> list:
         """Get all active SOS requests (for authority dashboard)."""
         sos_requests = db.query(DBSOS).filter(DBSOS.status == "active").all()
-        return [SOSService._db_sos_to_response(s) for s in sos_requests]
+        return [SOSService._db_sos_to_response(s, db) for s in sos_requests]
     
     @staticmethod
     def resolve_sos(db: Session, sos_id: str, resolved_by: str = None) -> SOSResponse:
@@ -213,11 +217,12 @@ class SOSService:
         db.commit()
         db.refresh(sos)
         
-        return SOSService._db_sos_to_response(sos)
+        return SOSService._db_sos_to_response(sos, db)
     
     @staticmethod
-    def _db_sos_to_response(sos: DBSOS) -> SOSResponse:
+    def _db_sos_to_response(sos: DBSOS, db: Session = None) -> SOSResponse:
         """Convert DBSOS to SOSResponse schema."""
+        user = db.query(DBUser).filter(DBUser.id == sos.user_id).first() if db else None
         return SOSResponse(
             id=sos.id,
             user_id=sos.user_id,
@@ -225,5 +230,8 @@ class SOSService:
             longitude=sos.longitude,
             status=sos.status,
             message=sos.message,
-            created_at=sos.created_at
+            created_at=sos.created_at,
+            full_name=user.full_name if user else None,
+            phone_number=user.phone_number if user else None,
+            emergency_contact=user.emergency_contact if user else None
         )

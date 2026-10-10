@@ -19,6 +19,8 @@ from app.services.user_service import UserService, IncidentService, SOSService
 from app.services.routing_service import routing_service
 from app.database import get_db
 from app.core.config import settings
+from app.core.admin_auth import issue_admin_token, require_admin
+from app.services.live_geo_service import live_geo_service
 
 router = APIRouter()
 
@@ -34,15 +36,27 @@ def health_check():
 
 @router.get("/weather", response_model=WeatherResponse)
 async def get_weather(location: str = Query("chennai", description="City or destination name")):
-    return await weather_service.get_weather(location)
+    try:
+        return await weather_service.get_weather(location)
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail=str(error))
 
 @router.get("/alerts", response_model=AlertResponse)
-def get_alerts(
+async def get_alerts(
     location: Optional[str] = Query(None, description="Filter by location keyword"),
     severity: Optional[str] = Query(None, description="Filter by Low, Moderate, High, Critical"),
-    lang: Optional[str] = Query("en", description="Target language code (en, ta, hi, fr, es)")
+    lang: Optional[str] = Query("en", description="Target language code"),
+    latitude: Optional[float] = Query(None, ge=-90, le=90),
+    longitude: Optional[float] = Query(None, ge=-180, le=180),
+    radius_km: float = Query(500, ge=1, le=2000),
 ):
-    alerts = alert_service.get_alerts(location=location, severity=severity)
+    try:
+        alerts = await live_geo_service.flood_alerts(location, latitude, longitude, radius_km)
+    except Exception:
+        raise HTTPException(status_code=503, detail="Live disaster feed is temporarily unavailable. Showing saved feed data where available.")
+
+    if severity:
+        alerts = [alert for alert in alerts if alert.severity.value.lower() == severity.lower()]
     
     # Enrich with translated texts if requested
     if lang and lang != "en":
@@ -58,19 +72,50 @@ def get_alerts(
     )
 
 @router.get("/alerts/{alert_id}", response_model=AlertBase)
-def get_alert_by_id(alert_id: str):
-    alert = alert_service.get_alert_by_id(alert_id)
-    if not alert:
-        raise HTTPException(status_code=404, detail="Alert not found")
+async def get_alert_by_id(alert_id: str):
+    try:
+        live_alerts = await live_geo_service.flood_alerts()
+    except Exception:
+        raise HTTPException(status_code=503, detail="Live disaster feed is temporarily unavailable.")
+    alert = next((item for item in live_alerts if item.id == alert_id), None)
+    if alert is None:
+        raise HTTPException(status_code=404, detail="Alert not found in the current live feed")
     return alert
 
 @router.get("/map/hazards", response_model=List[HazardZone])
-def get_hazard_zones():
-    return alert_service.get_hazard_zones()
+async def get_hazard_zones(
+    latitude: Optional[float] = Query(None, ge=-90, le=90),
+    longitude: Optional[float] = Query(None, ge=-180, le=180),
+    radius_km: float = Query(500, ge=1, le=2000),
+):
+    try:
+        return await live_geo_service.hazards_near(latitude, longitude, radius_km)
+    except Exception:
+        raise HTTPException(status_code=503, detail="Live hazard feed is temporarily unavailable.")
+
+
+@router.get("/map/nearby", response_model=List[Facility])
+async def get_nearby_facilities(
+    latitude: float = Query(..., ge=-90, le=90),
+    longitude: float = Query(..., ge=-180, le=180),
+    radius_km: float = Query(20, ge=1, le=50),
+):
+    try:
+        return await live_geo_service.nearby_facilities(latitude, longitude, radius_km)
+    except Exception:
+        raise HTTPException(status_code=503, detail="Nearby OpenStreetMap places are temporarily unavailable.")
 
 @router.get("/map/shelters", response_model=List[Facility])
-def get_shelters(facility_type: Optional[str] = Query(None, description="shelter or hospital")):
-    return alert_service.get_facilities(facility_type=facility_type)
+async def get_shelters(
+    latitude: float = Query(..., ge=-90, le=90),
+    longitude: float = Query(..., ge=-180, le=180),
+    radius_km: float = Query(20, ge=1, le=50),
+    facility_type: Optional[str] = Query(None, description="shelter or hospital"),
+):
+    facilities = await live_geo_service.nearby_facilities(latitude, longitude, radius_km)
+    if facility_type:
+        facilities = [facility for facility in facilities if facility.facility_type.value == facility_type]
+    return facilities
 
 @router.get("/sources")
 def get_sources_registry():
@@ -100,24 +145,24 @@ def get_config_status():
         ServiceStatus(
             service_name="Disaster Alert Registry",
             is_live=True,
-            provider="CrisisCompass Authoritative Registry + IMD/NOAA feeds",
-            details="Active normalized alerts with source verification and validity detection."
+            provider="GDACS global flood RSS feed",
+            details="Flood bulletins updated periodically and cached for low-network use. Open source bulletins and confirm with local authorities."
         ),
         ServiceStatus(
             service_name="Interactive Mapping",
             is_live=True,
-            provider="OpenStreetMap & Leaflet",
-            details="Zero-key vector/tile service for shelters and hazard zones."
+            provider="OpenStreetMap tiles, Overpass nearby places, and Leaflet",
+            details="Community facility listings; operating status and emergency suitability are not verified."
         ),
         ServiceStatus(
             service_name="Multilingual Emergency Engine",
-            is_live=True,
+            is_live=False,
             provider="CrisisCompass Pre-mapped Safety Dictionaries",
             details="English, Tamil, Hindi, French, Spanish verified translations."
         ),
         ServiceStatus(
             service_name="Emergency AI Assistant",
-            is_live=True,
+            is_live=False,
             provider=f"Safe Rule-Based / Deterministic System ({settings.LLM_PROVIDER})",
             details="Verified emergency answers, anti-hallucination guardrails, and source citations."
         )
@@ -201,6 +246,21 @@ def get_user_incidents(user_id: str, db: Session = Depends(get_db)):
 
 # ============ SOS Request Endpoints ============
 
+class AdminLoginRequest(BaseModel):
+    access_code: str
+
+
+@router.post("/admin/login")
+def admin_login(request: AdminLoginRequest):
+    """Exchange the configured authority access code for an expiring session token."""
+    import hmac
+
+    if not settings.ADMIN_ACCESS_CODE:
+        raise HTTPException(status_code=503, detail="Admin access is not configured on this server.")
+    if not hmac.compare_digest(request.access_code, settings.ADMIN_ACCESS_CODE):
+        raise HTTPException(status_code=401, detail="Incorrect authority access code.")
+    return {"access_token": issue_admin_token(), "token_type": "bearer"}
+
 @router.post("/sos", response_model=SOSResponse)
 def create_sos_request(user_id: str = Query(..., description="User ID"), 
                        sos_data: SOSCreate = None, 
@@ -213,7 +273,7 @@ def create_sos_request(user_id: str = Query(..., description="User ID"),
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/sos/{sos_id}", response_model=SOSResponse)
+@router.get("/sos/{sos_id}", response_model=SOSResponse, dependencies=[Depends(require_admin)])
 def get_sos_request(sos_id: str, db: Session = Depends(get_db)):
     """Get SOS request by ID."""
     try:
@@ -221,12 +281,12 @@ def get_sos_request(sos_id: str, db: Session = Depends(get_db)):
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@router.get("/sos/active", response_model=List[SOSResponse])
+@router.get("/sos/active", response_model=List[SOSResponse], dependencies=[Depends(require_admin)])
 def get_active_sos_requests(db: Session = Depends(get_db)):
     """Get all active SOS requests (for authority dashboard)."""
     return SOSService.get_active_sos_requests(db)
 
-@router.put("/sos/{sos_id}/resolve")
+@router.put("/sos/{sos_id}/resolve", dependencies=[Depends(require_admin)])
 def resolve_sos_request(sos_id: str, admin_id: str = Query(None), db: Session = Depends(get_db)):
     """Mark SOS request as resolved (for authorities)."""
     try:
@@ -259,11 +319,13 @@ class SafeRouteResponse(BaseModel):
     recommendations: List[str]
 
 @router.post("/route/safe", response_model=SafeRouteResponse)
-def calculate_safe_route(request: RouteRequest):
+async def calculate_safe_route(request: RouteRequest):
     """Calculate a safe route avoiding hazard zones."""
     try:
         # Get current hazards
-        hazards = alert_service.get_hazard_zones()
+        mid_lat = (request.start_lat + request.end_lat) / 2
+        mid_lng = (request.start_lng + request.end_lng) / 2
+        hazards = await live_geo_service.hazards_near(mid_lat, mid_lng, 500)
         routing_service.set_hazard_zones([h.__dict__ if hasattr(h, '__dict__') else h for h in hazards])
         
         # Calculate route
@@ -305,7 +367,7 @@ def calculate_safe_route(request: RouteRequest):
 
 # ============ Authority Dashboard Endpoints ============
 
-@router.get("/admin/incidents", response_model=List[IncidentResponse])
+@router.get("/admin/incidents", response_model=List[IncidentResponse], dependencies=[Depends(require_admin)])
 def get_all_incidents(status: Optional[str] = Query(None), db: Session = Depends(get_db)):
     """Get all incident reports (authority view)."""
     from sqlalchemy import String, cast
@@ -314,7 +376,7 @@ def get_all_incidents(status: Optional[str] = Query(None), db: Session = Depends
         query = query.filter(DBIncident.status == status)
     return [IncidentService._db_incident_to_response(i) for i in query.all()]
 
-@router.put("/admin/incidents/{incident_id}/verify")
+@router.put("/admin/incidents/{incident_id}/verify", dependencies=[Depends(require_admin)])
 def verify_incident(incident_id: str, admin_id: str = Query(...), db: Session = Depends(get_db)):
     """Verify an incident report."""
     try:
@@ -322,7 +384,7 @@ def verify_incident(incident_id: str, admin_id: str = Query(...), db: Session = 
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@router.put("/admin/incidents/{incident_id}/resolve")
+@router.put("/admin/incidents/{incident_id}/resolve", dependencies=[Depends(require_admin)])
 def resolve_incident(incident_id: str, admin_id: str = Query(...), db: Session = Depends(get_db)):
     """Mark incident as resolved."""
     try:
@@ -339,7 +401,7 @@ class DashboardStats(BaseModel):
     critical_hazards: int
     total_users: int
 
-@router.get("/admin/stats", response_model=DashboardStats)
+@router.get("/admin/stats", response_model=DashboardStats, dependencies=[Depends(require_admin)])
 def get_dashboard_stats(db: Session = Depends(get_db)):
     """Get dashboard statistics for authority users."""
     from sqlalchemy import func
@@ -365,7 +427,7 @@ def get_dashboard_stats(db: Session = Depends(get_db)):
         total_users=total_users
     )
 
-@router.get("/admin/sos/active", response_model=List[SOSResponse])
+@router.get("/admin/sos/active", response_model=List[SOSResponse], dependencies=[Depends(require_admin)])
 def get_pending_sos(db: Session = Depends(get_db)):
     """Get active SOS requests requiring attention."""
     return SOSService.get_active_sos_requests(db)

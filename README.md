@@ -51,7 +51,7 @@ TravelTech CrisisCompass is a complete, modern, responsive full-stack emergency 
    - Custom SVG-rendered markers for **Emergency Shelters (Green)**, **Hospitals (Red)**, and **Hazard Zones**.
    - Geometric polygon rendering for flood inundation buffers and exclusion zones.
    - Detailed popups displaying capacity, current occupancy, verification timestamp, and open/closed status.
-   - Quick sector jump buttons (Chennai sector, Miami sector).
+   - Search and locate map data across regions using live geographic feeds.
 
 7. **Disaster Alerts & Source Verification Registry**
    - Severity-classified alerts: *Critical*, *High*, *Moderate*, *Low*.
@@ -126,6 +126,7 @@ After running the app (see section below):
    ```bash
    copy ..\.env.example .env
    ```
+   Set unique, long random values for `ADMIN_ACCESS_CODE` and `ADMIN_TOKEN_SECRET` in `backend/.env` before opening the Authority Desk. Do not publish or commit these secrets. The desk signs out automatically after its 8-hour session expires.
 5. Run the FastAPI development server:
    ```bash
    uvicorn app.main:app --reload --port 8000

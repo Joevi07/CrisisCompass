@@ -22,6 +22,7 @@ class DataOrigin(str, Enum):
     USER_REPORT = "user_report"
     SIMULATED_DEMO_DATA = "simulated_demo_data"
     CACHED_PROVIDER_DATA = "cached_provider_data"
+    COMMUNITY_MAP_DATA = "community_map_data"
 
 class HazardType(str, Enum):
     FLOOD = "flood"
@@ -214,6 +215,7 @@ class SOSCreate(BaseModel):
     latitude: float
     longitude: float
     message: Optional[str] = None
+    request_id: Optional[str] = None
 
 class SOSResponse(BaseModel):
     id: str
@@ -223,6 +225,9 @@ class SOSResponse(BaseModel):
     status: str
     message: Optional[str] = None
     created_at: datetime
+    full_name: Optional[str] = None
+    phone_number: Optional[str] = None
+    emergency_contact: Optional[str] = None
 
 class AuthorityUpdate(BaseModel):
     verification_status: Optional[str] = None

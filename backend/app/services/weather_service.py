@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 # Fallback geocoding table for common tourist destinations to ensure reliable coordinates
 KNOWN_LOCATIONS: Dict[str, Dict[str, Any]] = {
     "chennai": {"name": "Chennai, India", "lat": 13.0827, "lon": 80.2707},
-    "miami": {"name": "Miami, USA", "lat": 25.7617, "lon": -80.1918},
     "tokyo": {"name": "Tokyo, Japan", "lat": 35.6762, "lon": 139.6503},
     "paris": {"name": "Paris, France", "lat": 48.8566, "lon": 2.3522},
     "bangkok": {"name": "Bangkok, Thailand", "lat": 13.7563, "lon": 100.5018},
@@ -80,8 +79,7 @@ class WeatherService:
     async def get_weather(self, location_query: str) -> WeatherResponse:
         loc_info = await self.geocode_location(location_query)
         if not loc_info:
-            # Fall back to default location if unrecognized
-            loc_info = KNOWN_LOCATIONS["chennai"]
+            raise ValueError(f"Could not locate '{location_query}'. Check the place name or connect to the internet and try again.")
 
         lat = loc_info["lat"]
         lon = loc_info["lon"]
