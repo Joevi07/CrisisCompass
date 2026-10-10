@@ -169,7 +169,7 @@ export default function RoutePage() {
         
         {/* Left 2 Cols: Interactive Safe Route Map matching Reference Left Screen */}
         <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between">
-          <div className="relative h-[480px] w-full">
+          <div className="relative h-[min(58svh,480px)] min-h-[300px] w-full sm:h-[480px]">
             <MapContainer
               center={[startCoord.lat, startCoord.lng]}
               zoom={14}

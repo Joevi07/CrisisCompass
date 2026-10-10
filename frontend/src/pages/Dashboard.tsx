@@ -270,7 +270,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ currentLang }) => {
             </Link>
           </div>
 
-          <div className="relative h-[420px] w-full">
+          <div className="relative h-[min(58svh,420px)] min-h-[300px] w-full sm:h-[420px]">
             {/* Map Canvas */}
             <MapContainer
               center={mapCenter}

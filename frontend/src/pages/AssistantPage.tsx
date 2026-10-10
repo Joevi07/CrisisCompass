@@ -163,7 +163,7 @@ export const AssistantPage: React.FC<AssistantPageProps> = ({ currentLang }) => 
       </div>
 
       {/* Chat Window */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[520px]">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex min-h-[min(68svh,520px)] sm:h-[520px] flex-col">
         {/* Messages */}
         <div className="flex-1 p-6 overflow-y-auto space-y-4">
           {messages.map((m, idx) => (

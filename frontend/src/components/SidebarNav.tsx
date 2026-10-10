@@ -3,7 +3,7 @@ import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { 
   Home, Bell, Map, Navigation, AlertTriangle, 
   Settings, PhoneCall, Globe, LogOut, User, ShieldCheck, 
-  ChevronRight, Sparkles
+  ChevronRight, Sparkles, MoreHorizontal, X
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../translations';
 import { getCache, saveCache } from '../utils/offlineCache';
@@ -32,6 +32,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   const navigate = useNavigate();
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(() => localStorage.getItem('userId'));
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(() => {
     const id = localStorage.getItem('userId');
@@ -118,7 +119,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   return (
     <>
       {/* Desktop Left Sidebar */}
-      <aside className="hidden lg:flex fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-slate-200 z-40 flex-col justify-between shadow-xs">
+      <aside className="hidden lg:flex fixed top-0 left-0 bottom-0 w-64 overflow-y-auto bg-white border-r border-slate-200 z-40 flex-col justify-between shadow-xs">
         <div>
           {/* Brand Logo & Sync Status */}
           <div className="p-6 border-b border-slate-100">
@@ -375,96 +376,36 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         </div>
       </aside>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-1 py-1.5 z-40 flex items-center justify-around shadow-2xl">
-        <NavLink
-          to="/"
-          className={({ isActive }) =>
-            `flex flex-col items-center gap-1 p-1.5 rounded-xl text-[9px] sm:text-[10px] font-bold ${
-              isActive ? 'text-[#0F4C5C]' : 'text-slate-500'
-            }`
-          }
-        >
-          <Home className="w-5 h-5" />
-          <span>Home</span>
-        </NavLink>
-
-        <NavLink
-          to="/alerts"
-          className={({ isActive }) =>
-            `flex flex-col items-center gap-1 p-1.5 rounded-xl text-[9px] sm:text-[10px] font-bold relative ${
-              isActive ? 'text-[#0F4C5C]' : 'text-slate-500'
-            }`
-          }
-        >
-          <Bell className="w-5 h-5" />
-          <span>Alerts</span>
-          {alertCount > 0 && (
-            <span className="absolute top-1 right-2 w-2 h-2 rounded-full bg-[#DF4444]"></span>
-          )}
-        </NavLink>
-
-        <NavLink
-          to="/map"
-          className={({ isActive }) =>
-            `flex flex-col items-center gap-1 p-1.5 rounded-xl text-[9px] sm:text-[10px] font-bold ${
-              isActive ? 'text-[#0F4C5C]' : 'text-slate-500'
-            }`
-          }
-        >
-          <Map className="w-5 h-5" />
-          <span>Map</span>
-        </NavLink>
-
-        <NavLink
-          to="/route"
-          className={({ isActive }) =>
-            `flex flex-col items-center gap-1 p-1.5 rounded-xl text-[9px] sm:text-[10px] font-bold ${
-              isActive ? 'text-[#0F4C5C]' : 'text-slate-500'
-            }`
-          }
-        >
-          <Navigation className="w-5 h-5" />
-          <span>Route</span>
-        </NavLink>
-
-        <NavLink
-          to="/assistant"
-          className={({ isActive }) =>
-            `flex flex-col items-center gap-1 p-1.5 rounded-xl text-[9px] sm:text-[10px] font-bold ${
-              isActive ? 'text-[#0F4C5C]' : 'text-slate-500'
-            }`
-          }
-        >
-          <Sparkles className="w-5 h-5 text-[#FB9038]" />
-          <span>AI Assist</span>
-        </NavLink>
-
-        <NavLink
-          to="/admin"
-          className={({ isActive }) =>
-            `flex flex-col items-center gap-1 p-1.5 rounded-xl text-[9px] sm:text-[10px] font-bold ${
-              isActive ? 'text-[#0F4C5C]' : 'text-slate-500'
-            }`
-          }
-        >
-          <ShieldCheck className="w-5 h-5" />
-          <span>Admin</span>
-        </NavLink>
-
-        <NavLink
-          to={userId ? `/profile/${userId}` : '/register'}
-          className={({ isActive }) =>
-            `flex flex-col items-center gap-1 p-1.5 rounded-xl text-[9px] sm:text-[10px] font-bold ${
-              isActive ? 'text-[#0F4C5C]' : 'text-slate-500'
-            }`
-          }
-        >
-          <div className="w-5 h-5 rounded-full bg-[#0F4C5C] text-white text-[10px] font-black flex items-center justify-center">
-            {getUserInitials()}
+      {/* Compact mobile navigation; secondary destinations live in More. */}
+      {mobileMoreOpen && <button aria-label="Close menu" className="lg:hidden fixed inset-0 z-40 bg-slate-950/30" onClick={() => setMobileMoreOpen(false)} />}
+      {mobileMoreOpen && (
+        <div className="lg:hidden fixed bottom-[4.5rem] left-3 right-3 z-50 mx-auto max-w-lg rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl">
+          <div className="mb-2 flex items-center justify-between px-2">
+            <span className="text-sm font-bold text-slate-800">More</span>
+            <button aria-label="Close menu" onClick={() => setMobileMoreOpen(false)} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"><X className="h-4 w-4" /></button>
           </div>
-          <span>{t.nav_profile || 'Profile'}</span>
-        </NavLink>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { to: '/route', label: 'Safe Route', icon: Navigation },
+              { to: '/assistant', label: 'AI Assistant', icon: Sparkles },
+              { to: userId ? `/profile/${userId}` : '/register', label: 'Profile', icon: User },
+              { to: '/settings', label: 'Settings', icon: Settings },
+              { to: '/admin', label: 'Authority Desk', icon: ShieldCheck },
+            ].map(({ to, label, icon: Icon }) => (
+              <NavLink key={label} to={to} onClick={() => setMobileMoreOpen(false)} className={({ isActive }) => `flex min-w-0 items-center gap-2 rounded-xl px-3 py-3 text-xs font-semibold ${isActive ? 'bg-[#0F4C5C] text-white' : 'bg-slate-50 text-slate-700 hover:bg-slate-100'}`}>
+                <Icon className="h-4 w-4 shrink-0" /><span className="truncate">{label}</span>
+              </NavLink>
+            ))}
+            {userId && <button onClick={() => { setMobileMoreOpen(false); handleSignOut(); }} className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-3 text-left text-xs font-semibold text-red-700"><LogOut className="h-4 w-4 shrink-0" />Sign out</button>}
+          </div>
+        </div>
+      )}
+      <nav aria-label="Main navigation" className="lg:hidden fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 items-center border-t border-slate-200 bg-white/95 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_24px_rgba(15,76,92,0.1)] backdrop-blur">
+        <NavLink to="/" className={({ isActive }) => `flex min-w-0 flex-col items-center gap-1 rounded-xl py-1.5 text-[10px] font-bold ${isActive ? 'text-[#0F4C5C]' : 'text-slate-500'}`}><Home className="h-5 w-5" /><span>Home</span></NavLink>
+        <NavLink to="/alerts" className={({ isActive }) => `relative flex min-w-0 flex-col items-center gap-1 rounded-xl py-1.5 text-[10px] font-bold ${isActive ? 'text-[#0F4C5C]' : 'text-slate-500'}`}><Bell className="h-5 w-5" /><span>Alerts</span>{alertCount > 0 && <span className="absolute right-[calc(50%-1rem)] top-0 h-2 w-2 rounded-full bg-[#DF4444]" />}</NavLink>
+        <NavLink to="/report" aria-label="Emergency SOS" className="-mt-5 mx-auto flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-[#DF4444] text-white shadow-lg shadow-red-900/20"><PhoneCall className="h-5 w-5" /></NavLink>
+        <NavLink to="/map" className={({ isActive }) => `flex min-w-0 flex-col items-center gap-1 rounded-xl py-1.5 text-[10px] font-bold ${isActive ? 'text-[#0F4C5C]' : 'text-slate-500'}`}><Map className="h-5 w-5" /><span>Map</span></NavLink>
+        <button aria-expanded={mobileMoreOpen} onClick={() => setMobileMoreOpen(!mobileMoreOpen)} className={`flex min-w-0 flex-col items-center gap-1 rounded-xl py-1.5 text-[10px] font-bold ${mobileMoreOpen ? 'text-[#0F4C5C]' : 'text-slate-500'}`}><MoreHorizontal className="h-5 w-5" /><span>More</span></button>
       </nav>
     </>
   );

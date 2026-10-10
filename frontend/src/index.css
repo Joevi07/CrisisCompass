@@ -16,6 +16,38 @@ body {
   background-color: #f8fafc;
   color: #1e293b;
   min-height: 100vh;
+  overflow-x: clip;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-width: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  .leaflet-popup-content-wrapper {
+    max-width: calc(100vw - 4rem);
+  }
+
+  .leaflet-popup-content {
+    max-width: calc(100vw - 6rem);
+    margin: 0.75rem;
+  }
 }
 
 /* RTL layout adjustments for Arabic */

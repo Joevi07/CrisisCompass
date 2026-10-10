@@ -130,7 +130,7 @@ export const SafetyMapPage: React.FC = () => {
       </section>
 
       <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="h-[min(70vh,680px)] min-h-[420px] w-full">
+        <div className="h-[min(70svh,680px)] min-h-[320px] w-full sm:min-h-[420px]">
           <MapContainer center={center} zoom={zoom} scrollWheelZoom style={{ height: '100%', width: '100%' }} key={`${center[0]}-${center[1]}-${zoom}`}>
             <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             {filteredFacilities.map((facility) => (

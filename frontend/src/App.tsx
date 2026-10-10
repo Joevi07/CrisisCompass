@@ -168,22 +168,22 @@ export const App: React.FC = () => {
           )}
 
           {/* Global Emergency Hotbar */}
-          <div className="bg-[#0F4C5C] text-white text-xs py-2 px-4 font-semibold shadow-xs">
-            <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <PhoneCall className="w-3.5 h-3.5 text-[#38BDAC] animate-bounce" />
-                <span>
+          <div className="bg-[#0F4C5C] text-white text-xs py-2 px-3 sm:px-4 font-semibold shadow-xs">
+            <div className="max-w-7xl mx-auto w-full flex flex-wrap items-center justify-center gap-x-3 gap-y-1 sm:justify-between">
+              <span className="flex min-w-0 items-center gap-2 text-center sm:text-left">
+                <PhoneCall className="w-3.5 h-3.5 shrink-0 text-[#38BDAC]" />
+                <span className="leading-relaxed">
                   Emergency Helplines: <strong>112 (All-in-one)</strong> • <strong>108 (Ambulance)</strong> • <strong>101 (Fire)</strong> • <strong>1070 (Disaster Control)</strong>
                 </span>
               </span>
-              <span className="hidden sm:inline text-slate-300 text-[11px]">
+              <span className="hidden lg:inline text-slate-300 text-[11px]">
                 {t.disclaimer}
               </span>
             </div>
           </div>
 
           {/* Main Content Router */}
-          <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+          <main className="min-w-0 flex-1 max-w-7xl mx-auto px-3 py-4 sm:px-6 sm:py-6 lg:px-8 w-full">
             <Suspense fallback={<div className="min-h-64 flex items-center justify-center p-8 text-sm font-semibold text-slate-600" role="status">Loading this page…</div>}>
               <Routes>
                 <Route path="/" element={<Dashboard currentLang={currentLang} />} />
