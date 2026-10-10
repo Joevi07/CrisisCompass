@@ -52,13 +52,20 @@ class LiveGeoService:
         radius_km: float = 500,
     ) -> list[AlertBase]:
         if time.monotonic() - self._alerts_at > CACHE_SECONDS or not self._alerts_loaded:
-            async with httpx.AsyncClient(timeout=12, headers={"User-Agent": "CrisisCompass/1.0 (disaster safety app)"}) as client:
-                response = await client.get(GDACS_FLOOD_FEED)
-                response.raise_for_status()
-            root = ET.fromstring(response.content)
-            self._alerts = self._parse_flood_feed(root)
-            self._alerts_at = time.monotonic()
-            self._alerts_loaded = True
+            try:
+                async with httpx.AsyncClient(timeout=4.0, headers={"User-Agent": "CrisisCompass/1.0 (disaster safety app)"}) as client:
+                    response = await client.get(GDACS_FLOOD_FEED)
+                    response.raise_for_status()
+                root = ET.fromstring(response.content)
+                self._alerts = self._parse_flood_feed(root)
+                self._alerts_at = time.monotonic()
+                self._alerts_loaded = True
+            except (httpx.HTTPError, ET.ParseError):
+                if not self._alerts_loaded:
+                    raise
+                # Keep serving the most recently fetched feed when the provider is slow/down.
+                # Back off briefly instead of making every request wait on the same failure.
+                self._alerts_at = time.monotonic() - CACHE_SECONDS + 30
 
         query = (location or "").strip().casefold()
         output = []

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { BarChart3, AlertTriangle, CheckCircle, Clock, Users, Phone, ShieldCheck, LogOut } from 'lucide-react';
-import { apiUrl } from '../utils/api';
+import { apiUrl, readApiJson } from '../utils/api';
 
 interface Incident {
   id: string;
@@ -67,8 +67,7 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ access_code: accessCode }),
       });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.detail || 'Authority sign-in failed.');
+      const payload = await readApiJson<{ access_token: string }>(response, 'Authority sign-in');
       sessionStorage.setItem('crisiscompass_admin_token', payload.access_token);
       setToken(payload.access_token);
       setAccessCode('');
@@ -105,11 +104,16 @@ export default function AdminDashboard() {
       if (![statsRes, incidentsRes, sosRes].every((response) => response.ok)) {
         throw new Error('Could not refresh the authority data. Check the connection and try again.');
       }
-      setStats(await statsRes.json());
-      setIncidents(await incidentsRes.json());
-      setSosRequests(await sosRes.json());
+      const [nextStats, nextIncidents, nextSosRequests] = await Promise.all([
+        readApiJson<DashboardStats>(statsRes, 'Loading authority statistics'),
+        readApiJson<Incident[]>(incidentsRes, 'Loading incident reports'),
+        readApiJson<SOSRequest[]>(sosRes, 'Loading SOS requests'),
+      ]);
+      setStats(nextStats);
+      setIncidents(nextIncidents);
+      setSosRequests(nextSosRequests);
     } catch (err) {
-      setError('Failed to fetch dashboard data');
+      setError(err instanceof Error ? err.message : 'Failed to fetch dashboard data.');
       console.error(err);
     } finally {
       setLoading(false);

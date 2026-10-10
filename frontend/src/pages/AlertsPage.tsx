@@ -8,8 +8,8 @@ import {
   Globe, Loader2, Sparkles, AlertCircle, Shield
 } from 'lucide-react';
 
-import { fetchWithOfflineFallback } from '../utils/offlineCache';
-import { apiUrl } from '../utils/api';
+import { fetchWithOfflineFallback, getCache, saveCache } from '../utils/offlineCache';
+import { apiUrl, readApiJson } from '../utils/api';
 
 interface AlertsPageProps {
   currentLang: string;
@@ -178,15 +178,15 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
     // Otherwise, fetch translation for targetLang from backend
     setTransLoading(true);
     setTransError(null);
+    const translationCacheKey = `alert_translation_${selectedAlertForTrans.id}_${targetLang}`;
+    const savedTranslation = getCache<{ title: string; description: string; action: string; isVerified: boolean }>(translationCacheKey)?.data;
+    if (savedTranslation) setTranslatedData(savedTranslation);
 
     const fetchTranslation = async () => {
       try {
         // Query backend alert endpoint with specific language
         const response = await fetch(apiUrl(`/api/alerts/${selectedAlertForTrans.id}?lang=${targetLang}`));
-        if (!response.ok) {
-          throw new Error(`Failed to load translation for ${currentTargetLangObj.name}`);
-        }
-        const data: Alert = await response.json();
+        const data = await readApiJson<Alert>(response, `Loading ${currentTargetLangObj.name} translation`);
 
         // Check for stale response
         if (currentReqId !== translationReqIdRef.current) return;
@@ -195,18 +195,22 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
         const hasTranslatedDesc = Boolean(data.translated_description && data.translated_description !== data.description);
         const isVerified = hasTranslatedTitle || hasTranslatedDesc;
 
-        setTranslatedData({
+        const nextTranslation = {
           title: data.translated_title || data.title,
           description: data.translated_description || data.description,
           action: data.translated_action || data.recommended_action || '',
           isVerified
-        });
+        };
+        setTranslatedData(nextTranslation);
+        saveCache(translationCacheKey, nextTranslation);
       } catch (err) {
         if (currentReqId !== translationReqIdRef.current) return;
         console.error('Translation fetch failed:', err);
-        setTransError(err instanceof Error ? err.message : 'Translation currently unavailable.');
+        setTransError(savedTranslation
+          ? `Showing saved ${currentTargetLangObj.name} translation; refresh failed.`
+          : err instanceof Error ? err.message : 'Translation currently unavailable.');
         // Fallback to original text safely without masking as verified
-        setTranslatedData({
+        setTranslatedData(savedTranslation || {
           title: selectedAlertForTrans.title,
           description: selectedAlertForTrans.description,
           action: selectedAlertForTrans.recommended_action || '',

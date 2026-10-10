@@ -6,7 +6,7 @@ import {
 import { MapContainer, TileLayer, Marker, Popup, Polyline, Polygon } from 'react-leaflet';
 import L from 'leaflet';
 import { TRANSLATIONS } from '../translations';
-import { apiUrl } from '../utils/api';
+import { apiUrl, readApiJson } from '../utils/api';
 
 interface Waypoint {
   lat: number;
@@ -100,15 +100,10 @@ export default function RoutePage() {
           mode: mode
         })
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to calculate safe route');
-      }
-
-      const data = await response.json();
+      const data = await readApiJson<RouteData>(response, 'Safe route calculation');
       setRoute(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error calculating route');
+      setError(err instanceof Error ? err.message : 'Error calculating route. Check your connection and retry.');
     } finally {
       setLoading(false);
     }

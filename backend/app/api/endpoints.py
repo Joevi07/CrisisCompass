@@ -45,14 +45,10 @@ async def get_weather(location: str = Query("chennai", description="City or dest
 async def get_alerts(
     location: Optional[str] = Query(None, description="Filter by location keyword"),
     severity: Optional[str] = Query(None, description="Filter by Low, Moderate, High, Critical"),
-<<<<<<< HEAD
     lang: Optional[str] = Query("en", description="Target language code"),
     latitude: Optional[float] = Query(None, ge=-90, le=90),
     longitude: Optional[float] = Query(None, ge=-180, le=180),
     radius_km: float = Query(500, ge=1, le=2000),
-=======
-    lang: Optional[str] = Query("en", description="Target language code")
->>>>>>> a901275e6d31aa999348afe8b3571f799ae11cdb
 ):
     try:
         alerts = await live_geo_service.flood_alerts(location, latitude, longitude, radius_km)
@@ -77,8 +73,7 @@ async def get_alerts(
     )
 
 @router.get("/alerts/{alert_id}", response_model=AlertBase)
-<<<<<<< HEAD
-async def get_alert_by_id(alert_id: str):
+async def get_alert_by_id(alert_id: str, lang: Optional[str] = Query("en", description="Target language code")):
     try:
         live_alerts = await live_geo_service.flood_alerts()
     except Exception:
@@ -86,18 +81,11 @@ async def get_alert_by_id(alert_id: str):
     alert = next((item for item in live_alerts if item.id == alert_id), None)
     if alert is None:
         raise HTTPException(status_code=404, detail="Alert not found in the current live feed")
-=======
-def get_alert_by_id(alert_id: str, lang: Optional[str] = Query("en", description="Target language code")):
-    alert = alert_service.get_alert_by_id(alert_id)
-    if not alert:
-        raise HTTPException(status_code=404, detail="Alert not found")
-    
     if lang and lang != "en":
         alert.translated_title = translation_service.translate_text(alert.title, lang)
         alert.translated_description = translation_service.translate_text(alert.description, lang)
         alert.translated_action = translation_service.translate_text(alert.recommended_action, lang)
         alert.translation_lang = lang
->>>>>>> a901275e6d31aa999348afe8b3571f799ae11cdb
     return alert
 
 @router.get("/map/hazards", response_model=List[HazardZone])
@@ -364,7 +352,14 @@ async def calculate_safe_route(request: RouteRequest):
         # Get current hazards
         mid_lat = (request.start_lat + request.end_lat) / 2
         mid_lng = (request.start_lng + request.end_lng) / 2
-        hazards = await live_geo_service.hazards_near(mid_lat, mid_lng, 500)
+        hazard_feed_available = True
+        try:
+            hazards = await live_geo_service.hazards_near(mid_lat, mid_lng, 500)
+        except Exception:
+            # Route estimation should remain available when the external alert feed is down.
+            # The response will contain no current feed hazards, so the client warns the user.
+            hazards = []
+            hazard_feed_available = False
         routing_service.set_hazard_zones([h.__dict__ if hasattr(h, '__dict__') else h for h in hazards])
         
         # Calculate route
@@ -387,8 +382,10 @@ async def calculate_safe_route(request: RouteRequest):
         if route.safety_score < 0.7:
             recommendations.append("⚠️ Route passes through or near hazard areas. Stay alert!")
         
-        if not recommendations:
-            recommendations.append("✅ Route is safe with no known hazards.")
+        if not recommendations and hazard_feed_available:
+            recommendations.append("No hazards were found in the connected alert feed. Confirm local conditions before traveling; this route is not a safety guarantee.")
+        elif not hazard_feed_available:
+            recommendations.append("Live hazard data is unavailable. This is a route estimate only, not a verified safe route. Check local alerts before traveling.")
         
         return SafeRouteResponse(
             distance_km=route.distance_km,
