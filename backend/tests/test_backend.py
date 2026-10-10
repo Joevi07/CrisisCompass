@@ -1,10 +1,27 @@
 import pytest
+from sqlalchemy import create_engine, inspect, text
 from fastapi.testclient import TestClient
 from app.main import app
+from app.database import _migrate_user_profile_columns
 from app.services.verifier_service import source_verifier
 from app.models.schemas import VerificationStatus
 
 client = TestClient(app)
+
+def test_user_profile_migration_adds_missing_columns():
+    test_engine = create_engine("sqlite://")
+    try:
+        with test_engine.begin() as connection:
+            connection.execute(text(
+                "CREATE TABLE users (id VARCHAR PRIMARY KEY, email VARCHAR NOT NULL)"
+            ))
+
+        _migrate_user_profile_columns(test_engine)
+
+        columns = {column["name"] for column in inspect(test_engine).get_columns("users")}
+        assert {"city", "state", "blood_group"} <= columns
+    finally:
+        test_engine.dispose()
 
 def test_health_endpoint():
     response = client.get("/api/health")

@@ -1,4 +1,17 @@
-from sqlalchemy import create_engine, Column, String, Float, DateTime, Boolean, Integer, Text, Enum as SQLEnum
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Enum as SQLEnum,
+    Float,
+    Integer,
+    String,
+    Text,
+    create_engine,
+    inspect,
+    text,
+)
+from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -108,3 +121,20 @@ def get_db():
 
 def init_db():
     Base.metadata.create_all(bind=engine)
+    _migrate_user_profile_columns(engine)
+
+def _migrate_user_profile_columns(bind: Engine) -> None:
+    profile_columns = {
+        "city": "VARCHAR",
+        "state": "VARCHAR",
+        "blood_group": "VARCHAR",
+    }
+    with bind.begin() as connection:
+        existing_columns = {
+            column["name"] for column in inspect(connection).get_columns("users")
+        }
+        for name, column_type in profile_columns.items():
+            if name not in existing_columns:
+                connection.execute(
+                    text(f"ALTER TABLE users ADD COLUMN {name} {column_type}")
+                )
