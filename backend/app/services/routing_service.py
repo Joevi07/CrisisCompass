@@ -3,7 +3,6 @@ Safe routing service that calculates routes avoiding hazard zones.
 Uses OpenRouteService or OSRM for routing, and hazard data to avoid dangerous areas.
 """
 
-from geopy.distance import geodesic
 from math import radians, cos, sin, asin, sqrt
 from typing import List, Tuple, Dict, Optional
 from datetime import datetime
