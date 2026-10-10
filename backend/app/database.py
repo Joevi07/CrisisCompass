@@ -57,6 +57,9 @@ class DBUser(Base):
     full_name = Column(String, nullable=False)
     phone_number = Column(String, nullable=True)
     destination = Column(String, nullable=False)
+    city = Column(String, nullable=True)
+    state = Column(String, nullable=True)
+    blood_group = Column(String, nullable=True)
     language_preference = Column(String, default="en")  # en, ta, hi, fr, es
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)

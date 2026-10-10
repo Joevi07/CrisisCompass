@@ -61,6 +61,7 @@ export interface Alert {
   recommended_action: string;
   translated_title?: string;
   translated_description?: string;
+  translated_action?: string;
   translation_lang?: string;
 }
 

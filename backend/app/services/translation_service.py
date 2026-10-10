@@ -188,20 +188,212 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
     }
 }
 
+# Multilingual Alert Content Translations across all 12 supported languages
+ALERT_TRANSLATIONS: Dict[str, Dict[str, str]] = {
+    "Red Alert: Severe Flash Flooding Warning": {
+        "ta": "சிவப்பு எச்சரிக்கை: தீவிர திடீர் வெள்ள அபாயம்",
+        "hi": "रेड अलर्ट: गंभीर अचानक बाढ़ की चेतावनी",
+        "te": "రెడ్ అలర్ట్: తీవ్ర ఆకస్మిక వరద హెచ్చరిక",
+        "ml": "റെഡ് അലേർട്ട്: അതിതീവ്ര മിന്നൽ പ്രളയ മുന്നറിയിപ്പ്",
+        "kn": "ರೆಡ್ ಅಲರ್ಟ್: ತೀವ್ರ ಹಠಾತ್ ಪ್ರವಾಹ ಎಚ್ಚರಿಕೆ",
+        "bn": "রেড অ্যালার্ট: তীব্র আকস্মিক বন্যার সতর্কতা",
+        "mr": "रेड अलर्ट: गंभीर अचानक पूर इशारा",
+        "ar": "إنذار أحمر: تحذير من فيضانات مفاجئة شديدة",
+        "zh-CN": "红色警报：特大山洪暴发预警",
+        "ja": "気象特別警報（赤）：激しい鉄砲水・浸水警戒",
+        "de": "Rote Warnung: Akute Sturzflut- und Hochwasserwarnung",
+        "fr": "Alerte Rouge : Risque d'inondations soudaines majeures",
+        "es": "Alerta Roja: Advertencia de inundaciones repentinas graves"
+    },
+    "Intense low-pressure weather system causing extreme precipitation exceeding 180mm. Low-lying coastal and urban areas are experiencing rapidly rising waters.": {
+        "ta": "தீவிர காற்றழுத்த தாழ்வு மண்டலத்தால் 180 மி.மீக்கும் அதிகமான கனமழை பெய்கிறது. தாழ்வான கடலோர மற்றும் நகர்ப்புற பகுதிகளில் வெள்ள நீர் மட்டம் வேகமாக உயர்ந்து வருகிறது.",
+        "hi": "गहरे दबाव के कारण 180 मिमी से अधिक भारी वर्षा हो रही है। निचले तटीय और शहरी क्षेत्रों में जलस्तर तेजी से बढ़ रहा है।",
+        "te": "తీవ్ర అల్పపీడన ప్రభావంతో 180 మి.మీకి మించి భారీ వర్షాలు కురుస్తున్నాయి. లోతట్టు తీర మరియు నగర ప్రాంతాలలో వరద నీరు వేగంగా పెరుగుతోంది.",
+        "ml": "തീവ്ര ന്യൂനമർദ്ദത്തെ തുടർന്ന് 180 മില്ലിമീറ്ററിൽ കൂടുതൽ അതിശക്തമായ മഴ പെയ്യുന്നു. തീരദേശ, നഗര താഴ്ന്ന പ്രദേശങ്ങളിൽ ജലനിരപ്പ് അതിവേഗം ഉയരുന്നു.",
+        "kn": "ತೀವ್ರ ವಾಯುಭಾರ ಕುಸಿತದಿಂದಾಗಿ 180 ಮಿ.ಮೀ ಗಿಂತಲೂ ಹೆಚ್ಚು ಮಳೆಯಾಗುತ್ತಿದೆ. ತಗ್ಗು ಪ್ರದೇಶಗಳಲ್ಲಿ ನೀರು ವೇಗವಾಗಿ ಏರುತ್ತಿದೆ.",
+        "bn": "তীব্র নিম্নচাপের প্রভাবে ১৮০ মিমি-র বেশি ভারী বৃষ্টিপাত হচ্ছে। নিম্নাঞ্চলীয় উপকূলীয় ও শহরাঞ্চলে জলস্তর দ্রুত বৃদ্ধি পাচ্ছে।",
+        "mr": "तीव्र कमी दाबाच्या पट्ट्यामुळे १८० मिमी पेक्षा जास्त मुसळधार पाऊस पडत आहे. सखल किनारी आणि शहरी भागात पाणी वेगाने वाढत आहे.",
+        "ar": "منخفض جوي حاد يتسبب في هطول أمطار غزيرة تتجاوز 180 ملم. تشهد المناطق المنخفضة والساحلية ارتفاعاً سريعاً في منسوب المياه.",
+        "zh-CN": "强低气压系统引发超过180毫米的特大暴雨。低洼沿海及市区积水水位迅速上涨。",
+        "ja": "発達した低気圧により180mmを超える猛烈な降雨。沿岸低地および都市部で冠水・増水が急激に進行中。",
+        "de": "Ein intensives Tiefdrucksystem verursacht extreme Niederschläge von über 180 mm. In tief liegenden Küsten- und Stadtgebieten steigt das Wasser rasant.",
+        "fr": "Un système dépressionnaire intense entraîne des précipitations extrêmes supérieures à 180 mm. Les zones côtières basses et urbaines sont rapidement inondées.",
+        "es": "Un intenso sistema de baja presión genera precipitaciones extremas superiores a 180 mm. Las zonas costeras y urbanas bajas sufren rápido anegamiento."
+    },
+    "Do not attempt to traverse flooded roads. Move valuables and yourself to 1st floor or higher. Keep mobile devices charged.": {
+        "ta": "வெள்ளம் சூழ்ந்த சாலைகளில் பயணிக்க முயற்சிக்காதீர்கள். மதிப்புமிக்க பொருட்களையும் உங்களையும் முதல் மாடி அல்லது உயரமான இடத்திற்கு மாற்றவும். தொலைபேசிகளை சார்ஜ் செய்து வைக்கவும்.",
+        "hi": "बाढ़ वाली सड़कों पर चलने या गाड़ी चलाने का प्रयास न करें। सुरक्षित ऊपरी मंजिल पर चले जाएं। मोबाइल फोन चार्ज रखें।",
+        "te": "వరద నీరు ప్రవహిస్తున్న రోడ్లపై ప్రయాణించవద్దు. మొదటి అంతస్తు లేదా ఎత్తైన ప్రదేశాలకు చేరుకోండి. మొబైల్ ఫోన్లు ఛార్జ్ చేసుకోండి.",
+        "ml": "വെള്ളപ്പൊക്കമുള്ള റോഡുകളിലൂടെ സഞ്ചരിക്കാൻ ശ്രമിക്കരുത്. ഉയർന്ന നിലകളിലേക്ക് മാറുക. മൊബൈൽ ചാർജ്ജ് കരുതുക.",
+        "kn": "ಪ್ರವಾಹವಿರುವ ರಸ್ತೆಗಳಲ್ಲಿ ಚಲಿಸಲು ಪ್ರಯತ್ನಿಸಬೇಡಿ. ನಿಮ್ಮನ್ನು ಮತ್ತು ಅಗತ್ಯ ವಸ್ತುಗಳನ್ನು ಮೊದಲ ಮಹಡಿಗೆ ಸ್ಥಳಾಂತರಿಸಿ. ಮೊಬೈಲ್ ಚಾರ್ಜ್ ಇಟ್ಟುಕೊಳ್ಳಿ.",
+        "bn": "প্লাবিত রাস্তা দিয়ে যাওয়ার চেষ্টা করবেন না। নিজেকে ও প্রয়োজনীয় সামগ্রী উঁচু স্থানে সরিয়ে নিন। মোবাইল চার্জ রাখুন।",
+        "mr": "पाणी साचलेल्या रस्त्यांवरून प्रवास करण्याचा प्रयत्न करू नका. स्वतःला सुरक्षित मजल्यावर हलवा. मोबाईल चार्ज ठेवा.",
+        "ar": "لا تحاول عبور الطرق المغمورة بالمياه. انتقل إلى الطابق العلوي واحتفظ بهاتفك مشحوناً.",
+        "zh-CN": "切勿涉水穿行被淹道路。请转移至二楼或更高安全地带。请保持通讯设备电量充足。",
+        "ja": "冠水した道路を歩行・通行しないでください。直ちに建物の2階以上または高台へ避難し、端末の充電を確保してください。",
+        "de": "Überflutete Straßen keinesfalls befahren oder durchqueren. Bringen Sie sich in ein höheres Stockwerk. Halten Sie Mobiltelefone geladen.",
+        "fr": "Ne tentez pas de traverser les routes inondées. Réfugiez-vous au premier étage ou plus haut. Maintenez vos téléphones chargés.",
+        "es": "No intente cruzar carreteras inundadas. Trasládese a un piso superior o zona elevada. Mantenga los teléfonos móviles cargados."
+    },
+    "Orange Alert: Severe Cyclone Approaching Coast": {
+        "ta": "ஆரஞ்சு எச்சரிக்கை: தீவிர புயல் கடலோரத்தை நெருங்குகிறது",
+        "hi": "ऑरेंज अलर्ट: गंभीर चक्रवात तट के करीब",
+        "te": "ఆరెంజ్ అలర్ట్: తీవ్ర తుఫాను తీరం వైపు దూసుకొస్తోంది",
+        "ml": "ഓറഞ്ച് അലേർട്ട്: അതിതീവ്ര ചുഴലിക്കാറ്റ് തീരത്തേക്ക് അടുക്കുന്നു",
+        "kn": "ಆರೆಂಜ್ ಅಲರ್ಟ್: ತೀವ್ರ ಚಂಡಮಾರುತ ಕರಾವಳಿಗೆ ಸಮೀಪಿಸುತ್ತಿದೆ",
+        "bn": "অরেঞ্জ অ্যালার্ট: তীব্র ঘূর্ণিঝড় উপকূলের দিকে অগ্রসর হচ্ছে",
+        "mr": "ऑरेंज अलर्ट: तीव्र चक्रीवादळ किनारपट्टीकडे सरकत आहे",
+        "ar": "إنذار برتقالي: إعصار شديد يقترب من الساحل",
+        "zh-CN": "橙色警报：强气旋风暴逼近沿海地区",
+        "ja": "気象警報（橙）：非常に強いサイクロンが沿岸へ接近中",
+        "de": "Orangefarbene Warnung: Schwerer Zyklon nähert sich der Küste",
+        "fr": "Alerte Orange : Cyclone sévère en approche de la côte",
+        "es": "Alerta Naranja: Ciclón severo aproximándose a la costa"
+    },
+    "Severe cyclonic storm system tracking Northwest across Bay of Bengal with sustained winds of 90-110 km/h and gusts up to 125 km/h. High tidal surges predicted along coastal areas.": {
+        "ta": "வங்கக் கடலில் வடமேற்கு திசையில் நகரும் தீவிர புயல், மணிக்கு 90-110 கி.மீ வேகத்தில் பலத்த காற்று வீசக்கூடும். கடலோரப் பகுதிகளில் உயரமான அலைகள் எழும் என கணிக்கப்பட்டுள்ளது.",
+        "hi": "बंगाल की खाड़ी में उत्तर-पश्चिम की ओर बढ़ रहा गंभीर चक्रवाती तूफान 90-110 किमी/घंटा की रफ्तार से हवाएं ला रहा है। तटीय क्षेत्रों में ऊंची लहरों की चेतावनी है।",
+        "te": "బంగాళాఖాతంలో వాయువ్య దిశగా కదులుతున్న తీవ్ర తుఫాను గంటకు 90-110 కి.మీ వేగంతో బలమైన గాలులు వీస్తోంది. తీర ప్రాంతాలలో భారీ ఉప్పెన హెచ్చరిక.",
+        "ml": "ബംഗാൾ ഉൾക്കടലിൽ വടക്കുപടിഞ്ഞാറൻ ദിശയിൽ നീങ്ങുന്ന അതിതീവ്ര ചുഴലിക്കാറ്റ് മണിക്കൂറിൽ 90-110 കി.മീ വേഗതയിൽ കാറ്റടിക്കാൻ സാധ്യതയുണ്ട്.",
+        "kn": "ಬಂಗಾಳಕೊಲ್ಲಿಯಲ್ಲಿ ವಾಯವ್ಯ ದಿಕ್ಕಿನಲ್ಲಿ ಚಲಿಸುತ್ತಿರುವ ತೀವ್ರ ಚಂಡಮಾರುತ 90-110 ಕಿಮೀ/ಗಂಟೆ ವೇಗದ ಗಾಳಿಯನ್ನು ಬೀಸುತ್ತಿದೆ. ಕರಾವಳಿಯಲ್ಲಿ ಭಾರಿ ಅಲೆಗಳ ಎಚ್ಚರಿಕೆ.",
+        "bn": "বঙ্গোপসাগরে উত্তর-পশ্চিম দিকে অগ্রসরমান তীব্র ঘূর্ণিঝড়ে বাতাসের গতিবেগ ঘণ্টায় ৯০-১১০ কিমি। উপকূলীয় এলাকায় উচ্চ জলোচ্ছ্বাসের পূর্বাভাস।",
+        "mr": "बंगालच्या उपसागरातून उत्तर-पश्चिमेकडे सरकणारे तीव्र चक्रीवादळ ताशी ९०-११० किमी वेगाने वारे आणत आहे. किनारपट्टीवर लाटा उसळण्याचा इशारा.",
+        "ar": "عاصفة إعصارية شديدة تتحرك نحو الشمال الغربي مع رياح تتراوح سرعتها بين 90 و110 كم/ساعة، مع توقع ارتفاع أمواج المد البحري.",
+        "zh-CN": "强气旋风暴正穿过孟加拉湾向西北方向移动，持续风速达每小时90-110公里，沿海预计出现风暴潮。",
+        "ja": "ベンガル湾を北西に進む強い熱帯低気圧（風速25〜30m/s、最大瞬間風速35m/s）。沿岸部に高潮・高波警戒。",
+        "de": "Ein schwerer Zyklon zieht mit anhaltenden Winden von 90–110 km/h und Böen bis 125 km/h nach Nordwesten. Entlang der Küste drohen hohe Sturmfluten.",
+        "fr": "Cyclone violent se déplaçant vers le nord-ouest avec des vents de 90 à 110 km/h. Fortes houles prévues sur le littoral.",
+        "es": "Ciclón severo desplazándose al noroeste con vientos sostenidos de 90 a 110 km/h y marejadas ciclónicas en la costa."
+    },
+    "Yellow Advisory: Inundation and Transport Disruption": {
+        "ta": "மஞ்சள் ஆலோசனை: நீர் தேக்கம் மற்றும் போக்குவரத்து பாதிப்பு",
+        "hi": "येलो एडवाइजरी: जलभराव और परिवहन में बाधा",
+        "te": "ఎల్లో అడ్వైజరీ: నీరు నిలవడం మరియు రవాణా అంతరాయం",
+        "ml": "യെല്ലോ അഡ്വൈസറി: വെള്ളക്കെട്ടും ഗതാഗത തടസ്സവും",
+        "kn": "ಯೆಲ್ಲೋ ಸಲಹೆ: ನೀರು ನಿಲ್ಲುವಿಕೆ ಮತ್ತು ಸಾರಿಗೆ ಅಡಚಣೆ",
+        "bn": "হলুদ পরামর্শ: জলাবদ্ধতা এবং যানবাহন চলাচলে বিঘ্ন",
+        "mr": "यलो ॲडव्हायझरी: पाणी साचणे आणि वाहतूक विस्कळीत",
+        "ar": "تنبيه أصفر: غمر المياه وتعطل حركة المرور",
+        "zh-CN": "黄色预警：积水与交通受阻提示",
+        "ja": "気象注意報（黄）：冠水・交通機関の乱れに注意",
+        "de": "Gelber Hinweis: Überflutungen und Verkehrsbehinderungen",
+        "fr": "Avis Jaune : Inondations urbaines et perturbations des transports",
+        "es": "Aviso Amarillo: Anagamiento e interrupciones en el transporte"
+    },
+    "Heavy continuous monsoon downpour leading to water accumulation along tourist transit corridors, local train underpasses, and arterial highways.": {
+        "ta": "தொடர் பருவமழையால் சுற்றுலா வழித்தடங்கள், ரயில்வே சுரங்கப்பாதைகள் மற்றும் முக்கிய சாலைகளில் மழைநீர் தேங்குகிறது.",
+        "hi": "लगातार भारी मानसूनी बारिश के कारण पर्यटन गलियारों, लोकल ट्रेन अंडरपासों और प्रमुख राजमार्गों पर जलभराव हो रहा है।",
+        "te": "ఎడతెరిపిలేని రుతుపవన వర్షాల వల్ల పర్యాటక మార్గాలు, రైల్వే అండర్‌పాస్‌లు మరియు ప్రధాన రహదారులపై నీరు నిలిచింది.",
+        "ml": "തുടർച്ചയായ കാലവർഷക്കെടുതി മൂലം പ്രധാന റോഡുകളിലും റെയിൽവേ അണ്ടർപാസുകളിലും വെള്ളക്കെട്ട് രൂപപ്പെടുന്നു.",
+        "kn": "ನಿರಂತರ ಮಾನ್ಸೂನ್ ಮಳೆಯಿಂದಾಗಿ ಪ್ರವಾಸಿ ಕಾರಿಡಾರ್‌ಗಳು ಮತ್ತು ರೈಲ್ವೆ ಅಂಡರ್‌ಪಾಸ್‌ಗಳಲ್ಲಿ ನೀರು ತುಂಬಿಕೊಂಡಿದೆ.",
+        "bn": "টানা বর্ষণে পর্যটন ট্রানজিট করিডোর এবং আন্ডারপাসগুলোতে জল জমেছে।",
+        "mr": "सतत कोसळणाऱ्या मान्सूनच्या पावसामुळे रस्त्यांवर आणि भुयारी मार्गांवर पाणी साचले आहे.",
+        "ar": "أمطار موسمية غزيرة مستمرة تؤدي إلى تجمع المياه في ممرات التنقل والأنفاق السفلية.",
+        "zh-CN": "持续季风强降雨导致主要旅游干道、铁路下穿隧道及骨干公路严重积水。",
+        "ja": "継続的なモンスーン豪雨により、観光主要道路やアンダーパスで冠水が発生中。",
+        "de": "Anhaltender Starkregen führt zu Wasseransammlungen auf touristischen Routen, Unterführungen und Fernstraßen.",
+        "fr": "Pluies torrentielles continues provoquant des accumulations d'eau sur les axes touristiques et passages souterrains.",
+        "es": "Fuertes lluvias monzónicas continuas provocan acumulación de agua en pasos subterráneos y vías principales."
+    },
+    "Advisory: River Embankment Overflow Watch": {
+        "ta": "ஆலோசனை: ஆற்றங்கரை நீர்மட்ட உயர்வு கண்காணிப்பு",
+        "hi": "परामर्श: नदी तटबंध जलस्तर निगरानी",
+        "te": "సలహా: నది గట్టు నీటిమట్టం పర్యవేక్షణ",
+        "ml": "അഡ്വൈസറി: നദീതീര ജലനിരപ്പ് ഉയർച്ച നിരീക്ഷണം",
+        "kn": "ಸಲಹೆ: ನದಿ ದಂಡೆ ನೀರಿನ ಮಟ್ಟ ಏರಿಕೆ ನಿಗಾ",
+        "bn": "পরামর্শ: নদীর বাঁধ উপচে পড়ার নজরদারি",
+        "mr": "सल्ला: नदीकाठ पाणी पातळी देखरेख",
+        "ar": "تنبيه: مراقبة فيضان ضفاف النهر",
+        "zh-CN": "预警提示：河流堤防溢流严密监测",
+        "ja": "河川増水・堤防水位監視情報",
+        "de": "Hinweis: Überwachung des Flusspegels und Uferschutzes",
+        "fr": "Avis : Surveillance du niveau des berges de rivière",
+        "es": "Aviso: Monitoreo de desbordamiento en riberas"
+    },
+    "Intermittent heavy discharge from upstream reservoir causing water level rise along tourist riverfront ghats. Civil defense team monitoring embankments.": {
+        "ta": "மேல்மட்ட அணையிலிருந்து நீர் திறக்கப்படுவதால் ஆற்றங்கரை படித்துறைகளில் நீர்மட்டம் உயர்கிறது. பேரிடர் மீட்புக் குழுவினர் கரையோரங்களைக் கண்காணித்து வருகின்றனர்.",
+        "hi": "ऊपरी जलाशय से जल छोड़े जाने के कारण पर्यटन घाटों पर जलस्तर बढ़ रहा है। नागरिक सुरक्षा दल तटबंधों की निगरानी कर रहे हैं।",
+        "te": "ఎగువ జలాశయం నుండి నీటి విడుదల కారణంగా పర్యాటక ఘాట్ల వద్ద నీటిమట్టం పెరుగుతోంది. సివిల్ డిఫెన్స్ బృందాలు పర్యవేక్షిస్తున్నాయి.",
+        "ml": "അണക്കെട്ടിൽ നിന്നുള്ള നീരൊഴുക്ക് കൂടിയതിനാൽ പ്രധാന ഘാട്ടുകളിൽ ജലനിരപ്പ് ഉയരുന്നു. രക്ഷാപ്രവർത്തകർ നിരീക്ഷണം ശക്തമാക്കി.",
+        "kn": "ಮೇಲ್ಭಾಗದ ಜಲಾಶಯದಿಂದ ನೀರು ಬಿಟ್ಟಿರುವುದರಿಂದ ನದಿ ತೀರದ ಘಾಟ್‌ಗಳಲ್ಲಿ ನೀರಿನ ಮಟ್ಟ ಹೆಚ್ಚಾಗಿದೆ.",
+        "bn": "উজান থেকে জল ছাড়ার কারণে পর্যটন ঘাটগুলোতে জলস্তর বৃদ্ধি পাচ্ছে। প্রতিরক্ষা বাহিনী বাঁধ পর্যবেক্ষণ করছে।",
+        "mr": "धरणातून पाणी सोडल्याने पर्यटन घाटांवर पाणी पातळी वाढली आहे. बचाव पथके लक्ष ठेवून आहेत.",
+        "ar": "تصريف متقطع من السد العلوي يؤدي إلى ارتفاع منسوب المياه على طول ضفاف النهر السياحية.",
+        "zh-CN": "上游水库间歇性泄洪导致滨水景区水位上涨。民防人员正在对堤防实施严密巡查。",
+        "ja": "上流ダム放流により観光地河岸の水位が上昇中。防災チームが堤防を監視中。",
+        "de": "Schwallwasserabgabe aus dem Oberstausee führt zu steigendem Wasserstand an touristischen Uferpromenaden.",
+        "fr": "Déversement du réservoir amont entraînant une montée des eaux le long des berges touristiques.",
+        "es": "Descargas de la presa superior causan aumento del nivel de agua en paseos ribereños turísticos."
+    },
+    "Secure loose outdoor furniture, avoid beachside promenades, and heed district administration evacuation orders for coastal zones.": {
+        "ta": "வெளியில் உள்ள பொருட்களைப் பாதுகாப்பாக வைக்கவும், கடற்கரை நடைபாதைகளைத் தவிர்க்கவும், கடலோரப் பகுதிகளுக்கான மாவட்ட நிர்வாகத்தின் வெளியேற்ற உத்தரவுகளுக்குக் கீழ்ப்படியவும்.",
+        "hi": "खुले में रखे सामान को सुरक्षित बांधें, समुद्र तट के रास्तों से दूर रहें এবং तटीय क्षेत्रों के लिए जिला प्रशासन के निकासी आदेशों का पालन करें।",
+        "te": "బయట ఉన్న వస్తువులను భద్రపరచండి, బీచ్ ప్రాంతాలకు దూరంగా ఉండండి మరియు తీరప్రాంతాల కోసం జిల్లా యంత్రాంగం ఇచ్చే తరలింపు ఆదేశాలను పాటించండి.",
+        "ml": "പുറത്തു സൂക്ഷിച്ചിരിക്കുന്ന സാധനങ്ങൾ സുരക്ഷിതമാക്കുക, ബീച്ച് റോഡുകൾ ഒഴിവാക്കുക, തീരദേശത്ത് അധികൃതരുടെ ഒഴിപ്പിക്കൽ നിർദ്ദേശങ്ങൾ പാലിക്കുക.",
+        "kn": "ಹೊರಾಂಗಣ ವಸ್ತುಗಳನ್ನು ಸುರಕ್ಷಿತವಾಗಿರಿಸಿ, ಕಡಲತೀರದ ವಾಯುವಿಹಾರ ತಪ್ಪಿಸಿ ಮತ್ತು ಕರಾವಳಿ ಸ್ಥಳಾಂತರಿಸುವ ಜಿಲ್ಲಾಡಳಿತದ ಆದೇಶಗಳನ್ನು ಪಾಲಿಸಿ.",
+        "bn": "আলগা বহিরঙ্গন সামগ্রী সুরক্ষিত করুন, সমুদ্র সৈকত এড়িয়ে চলুন এবং উপকূলীয় অঞ্চলের জেলা প্রশাসনের স্থানান্তরের নির্দেশাবলী মেনে চলুন।",
+        "mr": "बाहेरील मोकळ्या वस्तू सुरक्षित करा, समुद्रकिनाऱ्यावरील रस्ते टाळा आणि किनारपट्टीच्या स्थलांतराच्या जिल्हा प्रशासनाच्या आदेशांचे पालन करा.",
+        "ar": "قم بتأمين الأثاث الخارجي غير المثبت، وتجنب كورنيش الشاطئ، والتزم بأوامر الإخلاء الصادرة عن إدارة المنطقة.",
+        "zh-CN": "固定室外松散物品，远离海滨步道，严格服从当地政府针对沿海地区的疏散撤离指令。",
+        "ja": "屋外の飛散物を固定・屋内退避し、海岸遊歩道には近づかず、地区行政による沿岸避難指示に必ず従ってください。",
+        "de": "Sichern Sie Gegenstände im Freien, meiden Sie Strandpromenaden und befolgen Sie behördliche Evakuierungsanordnungen.",
+        "fr": "Sécurisez le mobilier extérieur, évitez les promenades en bord de mer et suivez les ordres d'évacuation côtière.",
+        "es": "Asegure muebles exteriores, evite paseos marítimos y acate las órdenes de evacuación de la administración costera."
+    },
+    "Expect taxi and suburban train delays. Seek shelter in commercial buildings away from underpass roads and seafront promenades.": {
+        "ta": "வாடகை கார்கள் மற்றும் புறநகர் ரயில் தாமதங்களை எதிர்பார்க்கலாம். சுரங்கப்பாதை சாலைகள் மற்றும் கடல் முகப்புகளைத் தவிர்த்து வணிக கட்டிடங்களில் தஞ்சம் அடையுங்கள்.",
+        "hi": "टैक्सी और उपनगरीय ट्रेनों में देरी की संभावना है। अंडरपास सड़कों और समुद्र तट से दूर सुरक्षित वाणिज्यिक इमारतों में शरण लें।",
+        "te": "టాక్సీలు మరియు సబర్బన్ రైళ్ల రాకపోకల్లో జాప్యం ఉండవచ్చు. అండర్‌పాస్ రోడ్లు మరియు సముద్ర తీరాలకు దూరంగా వాణిజ్య భవనాలలో ఆశ్రయం పొందండి.",
+        "ml": "ടാക്സി, സബർബൻ ട്രെയിൻ സർവീസുകളിൽ കാലതാമസം പ്രതീക്ഷിക്കുക. അണ്ടർപാസ് റോഡുകളിൽ നിന്നും കടൽത്തീരങ്ങളിൽ നിന്നും മാറി കെട്ടിടങ്ങളിൽ കഴിയുക.",
+        "kn": "ಟ್ಯಾಕ್ಸಿ ಮತ್ತು ಉಪನಗರ ರೈಲು ವಿಳಂಬವನ್ನು ನಿರೀಕ್ಷಿಸಿ. ಅಂಡರ್‌ಪಾಸ್ ರಸ್ತೆಗಳು ಮತ್ತು ಸಮುದ್ರತೀರದಿಂದ ದೂರವಿರುವ ವಾಣಿಜ್ಯ ಕಟ್ಟಡಗಳಲ್ಲಿ ಆಶ್ರಯ ಪಡೆಯಿರಿ.",
+        "bn": "ট্যাক্সি এবং শহরতলি ট্রেনের বিলম্বের সম্ভাবনা রয়েছে। আন্ডারপাস রাস্তা এবং সমুদ্র উপকূল থেকে দূরে নিরাপদ ভবনে আশ্রয় নিন।",
+        "mr": "टॅक्सी आणि उपनगरीय गाड्यांना उशीर होण्याची शक्यता आहे. भुयारी रस्ते आणि समुद्रकिनाऱ्यापासून दूर इमारतींमध्ये आश्रय घ्या.",
+        "ar": "توقع تأخير سيارات الأجرة وقطارات الضواحي. احتمِ بالمباني التجارية بعيداً عن الطرق السفلية والممرات البحرية.",
+        "zh-CN": "出租车及城郊列车可能出现延误。请在远离下穿隧道和海滨长廊的安全商业建筑内避险。",
+        "ja": "タクシーや近郊列車の遅延が見込まれます。アンダーパス道路や海岸線を避け、堅牢な商業施設等に避難してください。",
+        "de": "Rechnen Sie mit Verzögerungen bei Taxis und Nahverkehrszügen. Suchen Sie Schutz in Gebäuden abseits von Unterführungen.",
+        "fr": "Attendez-vous à des retards de taxis et de trains. Mettez-vous à l'abri dans des bâtiments à l'écart des passages souterrains.",
+        "es": "Espere demoras en taxis y trenes suburbanos. Busque refugio en edificios comerciales lejos de pasos subterráneos y del litoral."
+    },
+    "Exercise caution around river banks and boating jetties. Avoid ferry transit during peak water surge.": {
+        "ta": "ஆற்றங்கரைகள் மற்றும் படகு துறைகளில் எச்சரிக்கையுடன் இருக்கவும். நீர் மட்டம் அதிகமாக இருக்கும் போது படகுப் பயணங்களைத் தவிர்க்கவும்.",
+        "hi": "नदी तटों और नौका जेटी के पास सावधानी बरतें। जलस्तर में तीव्र वृद्धि के दौरान नौका पारगमन से बचें।",
+        "te": "నది ఒడ్డున మరియు బోటింగ్ జెట్టీల వద్ద జాగ్రత్తగా ఉండండి. నీటి ఉధృతి ఎక్కువగా ఉన్నప్పుడు ఫెర్రీ ప్రయాణాలను నివారించండి.",
+        "ml": "നദീതീരങ്ങളിലും ബോട്ട് ജെട്ടികളിലും അതീവ ജാഗ്രത പാലിക്കുക. ജലനിരപ്പ് ഉയരുമ്പോൾ ബോട്ട് യാത്ര ഒഴിവാക്കുക.",
+        "kn": "ನದಿ ದಂಡೆಗಳು ಮತ್ತು ಬೋಟಿಂಗ್ ಜೆಟ್ಟಿಗಳ ಬಳಿ ಜಾಗರೂಕರಾಗಿರಿ. ನೀರಿನ ಉಬ್ಬರವಿರುವಾಗ ದೋಣಿ ಸಂಚಾರವನ್ನು ತಪ್ಪಿಸಿ.",
+        "bn": "নদীর তীর এবং নৌকা জেটিগুলোর আশেপাশে সতর্ক থাকুন। জলের উচ্চ প্রবাহের সময় ফেরি চলাচল এড়িয়ে চলুন।",
+        "mr": "नदीकाठ आणि बोट जेट्टींजवळ काळजी घ्या. पाण्याच्या तीव्र प्रवाहादरम्यान फेरीने प्रवास करणे टाळा.",
+        "ar": "توخَّ الحذر بالقرب من ضفاف الأنهار ومراسي القوارب. تجنب ركوب العبّارات أثناء ارتفاع منسوب المياه.",
+        "zh-CN": "在河岸及游船码头附近务必格外小心。洪峰水位上涨期间请勿乘坐轮渡。",
+        "ja": "河川敷や船着き場周辺では厳重に警戒してください。増水・ピーク時のフェリー乗船は避けてください。",
+        "de": "Vorsicht an Flussufern und Bootsanlegern. Vermeiden Sie Fährfahrten während des Höchststands.",
+        "fr": "Soyez prudent aux abords des berges et embarcadères. Évitez les traversées en ferry pendant les crues.",
+        "es": "Extreme precauciones en riberas y embarcaderos. Evite el traslado en ferry durante la crecida máxima."
+    }
+}
+
 class TranslationService:
     def get_translations(self, lang: str = "en") -> Dict[str, str]:
         selected = lang.lower() if lang else "en"
         return TRANSLATIONS.get(selected, TRANSLATIONS["en"])
 
     def translate_text(self, text: str, target_lang: str) -> str:
-        # Returns pre-mapped or original text to ensure emergency meaning is preserved
-        if not text or target_lang == "en":
+        if not text or not target_lang or target_lang == "en":
             return text
         
-        # Check standard guidelines
+        target = target_lang.strip()
+        
+        # 1. First check alert-specific direct translations (full phrase match)
+        clean_text = text.strip()
+        if clean_text in ALERT_TRANSLATIONS:
+            if target in ALERT_TRANSLATIONS[clean_text]:
+                return ALERT_TRANSLATIONS[clean_text][target]
+
+        # 2. Check standard UI / guidance dictionary
         for eng_key, eng_val in TRANSLATIONS["en"].items():
-            if text.strip() == eng_val.strip():
-                return TRANSLATIONS.get(target_lang, {}).get(eng_key, text)
+            if clean_text == eng_val.strip():
+                if target in TRANSLATIONS and eng_key in TRANSLATIONS[target]:
+                    return TRANSLATIONS[target][eng_key]
 
         return text
 
