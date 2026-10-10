@@ -21,6 +21,9 @@ class UserService:
             full_name=user_data.full_name,
             phone_number=user_data.phone_number,
             destination=user_data.destination,
+            city=user_data.city,
+            state=user_data.state,
+            blood_group=user_data.blood_group,
             language_preference=user_data.language_preference,
             emergency_contact=user_data.emergency_contact
         )
@@ -84,6 +87,9 @@ class UserService:
             full_name=user.full_name,
             phone_number=user.phone_number,
             destination=user.destination,
+            city=getattr(user, 'city', None),
+            state=getattr(user, 'state', None),
+            blood_group=getattr(user, 'blood_group', None),
             language_preference=user.language_preference,
             latitude=user.latitude,
             longitude=user.longitude,

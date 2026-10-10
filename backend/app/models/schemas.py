@@ -87,6 +87,7 @@ class AlertBase(BaseModel):
     recommended_action: str
     translated_title: Optional[str] = None
     translated_description: Optional[str] = None
+    translated_action: Optional[str] = None
     translation_lang: Optional[str] = None
 
 class AlertResponse(BaseModel):
@@ -158,6 +159,9 @@ class UserRegister(BaseModel):
     full_name: str
     phone_number: Optional[str] = None
     destination: str
+    city: Optional[str] = None
+    state: Optional[str] = None
+    blood_group: Optional[str] = None
     language_preference: str = "en"
     emergency_contact: Optional[str] = None
 
@@ -165,6 +169,9 @@ class UserUpdate(BaseModel):
     full_name: Optional[str] = None
     phone_number: Optional[str] = None
     destination: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    blood_group: Optional[str] = None
     language_preference: Optional[str] = None
     emergency_contact: Optional[str] = None
     latitude: Optional[float] = None
@@ -176,6 +183,9 @@ class UserProfile(BaseModel):
     full_name: str
     phone_number: Optional[str] = None
     destination: str
+    city: Optional[str] = None
+    state: Optional[str] = None
+    blood_group: Optional[str] = None
     language_preference: str
     latitude: Optional[float] = None
     longitude: Optional[float] = None

@@ -40,7 +40,7 @@ async def get_weather(location: str = Query("chennai", description="City or dest
 def get_alerts(
     location: Optional[str] = Query(None, description="Filter by location keyword"),
     severity: Optional[str] = Query(None, description="Filter by Low, Moderate, High, Critical"),
-    lang: Optional[str] = Query("en", description="Target language code (en, ta, hi, fr, es)")
+    lang: Optional[str] = Query("en", description="Target language code")
 ):
     alerts = alert_service.get_alerts(location=location, severity=severity)
     
@@ -49,6 +49,7 @@ def get_alerts(
         for a in alerts:
             a.translated_title = translation_service.translate_text(a.title, lang)
             a.translated_description = translation_service.translate_text(a.description, lang)
+            a.translated_action = translation_service.translate_text(a.recommended_action, lang)
             a.translation_lang = lang
 
     return AlertResponse(
@@ -58,10 +59,16 @@ def get_alerts(
     )
 
 @router.get("/alerts/{alert_id}", response_model=AlertBase)
-def get_alert_by_id(alert_id: str):
+def get_alert_by_id(alert_id: str, lang: Optional[str] = Query("en", description="Target language code")):
     alert = alert_service.get_alert_by_id(alert_id)
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
+    
+    if lang and lang != "en":
+        alert.translated_title = translation_service.translate_text(alert.title, lang)
+        alert.translated_description = translation_service.translate_text(alert.description, lang)
+        alert.translated_action = translation_service.translate_text(alert.recommended_action, lang)
+        alert.translation_lang = lang
     return alert
 
 @router.get("/map/hazards", response_model=List[HazardZone])
@@ -80,9 +87,30 @@ def get_sources_registry():
         "validation_strategy": "Domain allowlisting with SSRF protection and HTTPS requirement"
     }
 
+class TranslateRequest(BaseModel):
+    text: str
+    target_lang: str
+
+class TranslateResponse(BaseModel):
+    original_text: str
+    translated_text: str
+    target_lang: str
+    is_verified: bool
+
 @router.get("/translations")
 def get_translations(lang: str = Query("en")):
     return translation_service.get_translations(lang)
+
+@router.post("/translate", response_model=TranslateResponse)
+def translate_endpoint(req: TranslateRequest):
+    translated = translation_service.translate_text(req.text, req.target_lang)
+    is_verified = (translated != req.text) or (req.target_lang == "en")
+    return TranslateResponse(
+        original_text=req.text,
+        translated_text=translated,
+        target_lang=req.target_lang,
+        is_verified=is_verified
+    )
 
 @router.post("/assistant/chat", response_model=ChatResponse)
 async def chat_assistant(request: ChatRequest):

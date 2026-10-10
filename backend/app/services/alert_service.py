@@ -36,59 +36,59 @@ class AlertService:
             AlertBase(
                 id="alert-demo-002",
                 title="Orange Alert: Severe Cyclone Approaching Coast",
-                description="Cyclone system tracking Northwest with sustained winds of 90-110 km/h with gusts up to 125 km/h. High tidal surges predicted.",
+                description="Severe cyclonic storm system tracking Northwest across Bay of Bengal with sustained winds of 90-110 km/h and gusts up to 125 km/h. High tidal surges predicted along coastal areas.",
                 hazard_type=HazardType.CYCLONE,
                 severity=SeverityLevel.HIGH,
-                affected_location="Miami, USA (Coastal Biscayne Corridor)",
-                latitude=25.7617,
-                longitude=-80.1918,
+                affected_location="Puri, Odisha, India (Coastal Heritage Belt)",
+                latitude=19.8135,
+                longitude=85.8312,
                 radius_km=30.0,
-                issuing_authority="National Hurricane Center (NOAA)",
-                source_url="https://nhc.noaa.gov/cyclone-bulletin-2026",
+                issuing_authority="India Meteorological Department (IMD) / OSDMA",
+                source_url="https://imd.gov.in/cyclone-bulletin-2026",
                 published_at=now - timedelta(hours=5),
                 updated_at=now - timedelta(hours=1),
                 valid_until=now + timedelta(hours=24),
                 verification_status=VerificationStatus.OFFICIAL,
                 data_origin=DataOrigin.SIMULATED_DEMO_DATA,
-                recommended_action="Secure loose outdoor furniture, avoid beachside roads, and heed official evacuation orders for zone A."
+                recommended_action="Secure loose outdoor furniture, avoid beachside promenades, and heed district administration evacuation orders for coastal zones."
             ),
             AlertBase(
                 id="alert-demo-003",
                 title="Yellow Advisory: Inundation and Transport Disruption",
-                description="Heavy continuous downpour leading to water accumulation along tourist transit corridors and metro underpasses.",
+                description="Heavy continuous monsoon downpour leading to water accumulation along tourist transit corridors, local train underpasses, and arterial highways.",
                 hazard_type=HazardType.HEAVY_RAIN,
                 severity=SeverityLevel.MODERATE,
-                affected_location="Bangkok, Thailand (Sukhumvit & Riverside)",
-                latitude=13.7563,
-                longitude=100.5018,
-                radius_km=12.0,
-                issuing_authority="Metropolitan Disaster Management",
-                source_url="https://bmdi.gov/weather-advisory-rain",
+                affected_location="Mumbai, Maharashtra, India (South Mumbai & Suburbs)",
+                latitude=18.9220,
+                longitude=72.8347,
+                radius_km=15.0,
+                issuing_authority="Brihanmumbai Municipal Corporation (BMC) Disaster Cell",
+                source_url="https://imd.gov.in/weather-advisory-mumbai",
                 published_at=now - timedelta(hours=3),
                 updated_at=now - timedelta(minutes=45),
                 valid_until=now + timedelta(hours=8),
                 verification_status=VerificationStatus.OFFICIAL,
                 data_origin=DataOrigin.SIMULATED_DEMO_DATA,
-                recommended_action="Expect taxi and train delays. Seek shelter in commercial buildings away from underpass roads."
+                recommended_action="Expect taxi and suburban train delays. Seek shelter in commercial buildings away from underpass roads and seafront promenades."
             ),
             AlertBase(
                 id="alert-demo-004",
-                title="Unverified Report: River Embankment Overflow",
-                description="Social post claims water breach near local heritage canal. No confirmation from civil administration yet.",
+                title="Advisory: River Embankment Overflow Watch",
+                description="Intermittent heavy discharge from upstream reservoir causing water level rise along tourist riverfront ghats. Civil defense team monitoring embankments.",
                 hazard_type=HazardType.RESTRICTED,
                 severity=SeverityLevel.LOW,
-                affected_location="Paris, France (Seine Quays)",
-                latitude=48.8566,
-                longitude=2.3522,
-                radius_km=3.0,
-                issuing_authority="Local Citizen Safety Net",
-                source_url="https://unverified-social-forum.org/paris-water",
+                affected_location="Kochi, Kerala, India (Fort Kochi & Mattancherry)",
+                latitude=9.9656,
+                longitude=76.2421,
+                radius_km=5.0,
+                issuing_authority="Kerala State Disaster Management Authority (KSDMA)",
+                source_url="https://imd.gov.in/hazards/kochi-water-watch",
                 published_at=now - timedelta(hours=1),
                 updated_at=now - timedelta(hours=1),
-                valid_until=now + timedelta(hours=3),
-                verification_status=VerificationStatus.UNVERIFIED,
-                data_origin=DataOrigin.USER_REPORT,
-                recommended_action="Exercise caution around river banks. Await official police validation."
+                valid_until=now + timedelta(hours=6),
+                verification_status=VerificationStatus.OFFICIAL,
+                data_origin=DataOrigin.SIMULATED_DEMO_DATA,
+                recommended_action="Exercise caution around river banks and boating jetties. Avoid ferry transit during peak water surge."
             )
         ]
 
@@ -99,7 +99,7 @@ class AlertService:
                 facility_type=FacilityType.SHELTER,
                 latitude=13.0850,
                 longitude=80.2650,
-                address="45 EVR Periyar Salai, Chennai",
+                address="45 EVR Periyar Salai, Chennai, Tamil Nadu, India",
                 contact_number="+91 44 2538 4520",
                 capacity=500,
                 current_occupancy=140,
@@ -114,7 +114,7 @@ class AlertService:
                 facility_type=FacilityType.SHELTER,
                 latitude=13.0720,
                 longitude=80.2580,
-                address="12 Cathedral Road, Chennai",
+                address="12 Cathedral Road, Chennai, Tamil Nadu, India",
                 contact_number="+91 44 2811 0290",
                 capacity=350,
                 current_occupancy=85,
@@ -129,7 +129,7 @@ class AlertService:
                 facility_type=FacilityType.HOSPITAL,
                 latitude=13.0810,
                 longitude=80.2780,
-                address="Poonamallee High Rd, Chennai",
+                address="Poonamallee High Rd, Chennai, Tamil Nadu, India",
                 contact_number="+91 44 2530 5000",
                 capacity=1200,
                 current_occupancy=900,
@@ -138,36 +138,36 @@ class AlertService:
                 data_origin=DataOrigin.SIMULATED_DEMO_DATA,
                 source_notes="24/7 Level 1 Trauma Emergency facility."
             ),
-            # Miami Facilities
+            # Mumbai Facilities
             Facility(
-                id="fac-miami-shelter-1",
-                name="Biscayne High School Storm Shelter",
+                id="fac-mumbai-shelter-1",
+                name="South Mumbai Municipal Disaster Relief Shelter",
                 facility_type=FacilityType.SHELTER,
-                latitude=25.7680,
-                longitude=-80.1990,
-                address="Miami-Dade County Public Shelter #14",
-                contact_number="+1 305 468 5400",
+                latitude=18.9320,
+                longitude=72.8310,
+                address="Dr. D.N. Road, Fort, Mumbai, Maharashtra, India",
+                contact_number="+91 22 2269 4725",
                 capacity=600,
-                current_occupancy=210,
+                current_occupancy=180,
                 is_open=True,
                 status_verified_at=now - timedelta(hours=1),
                 data_origin=DataOrigin.SIMULATED_DEMO_DATA,
-                source_notes="ADA compliant pet-friendly emergency hurricane shelter."
+                source_notes="BMC-verified emergency flood and monsoon shelter with food supplies."
             ),
             Facility(
-                id="fac-miami-hosp-1",
-                name="Jackson Memorial Emergency Care",
+                id="fac-mumbai-hosp-1",
+                name="KEM Emergency & Trauma Care Hospital",
                 facility_type=FacilityType.HOSPITAL,
-                latitude=25.7905,
-                longitude=-80.2110,
-                address="1611 NW 12th Ave, Miami",
-                contact_number="+1 305 585 1111",
-                capacity=1500,
-                current_occupancy=1100,
+                latitude=19.0028,
+                longitude=72.8432,
+                address="Acharya Donde Marg, Parel, Mumbai, Maharashtra, India",
+                contact_number="+91 22 2410 7000",
+                capacity=1800,
+                current_occupancy=1350,
                 is_open=True,
                 status_verified_at=now - timedelta(minutes=20),
                 data_origin=DataOrigin.SIMULATED_DEMO_DATA,
-                source_notes="Designated disaster receiving trauma hospital."
+                source_notes="Designated disaster receiving tertiary healthcare and trauma center."
             )
         ]
 
@@ -208,13 +208,17 @@ class AlertService:
             )
         ]
 
-    def get_alerts(self, location: Optional[str] = None, severity: Optional[str] = None) -> List[AlertBase]:
+    def get_alerts(self, location: Optional[str] = None, severity: Optional[str] = None, india_only: bool = True) -> List[AlertBase]:
         now = datetime.utcnow()
         results: List[AlertBase] = []
         for alert in self.demo_alerts:
             # Check expiration
             if alert.valid_until and alert.valid_until < now:
                 alert.verification_status = VerificationStatus.EXPIRED
+
+            # Enforce India-focused safety filtering
+            if india_only and "india" not in alert.affected_location.lower():
+                continue
 
             # Filter location
             if location and location.lower() not in alert.affected_location.lower():
