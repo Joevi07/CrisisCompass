@@ -7,32 +7,86 @@ TravelTech CrisisCompass is a complete, modern, responsive full-stack emergency 
 
 ## 🌟 Key Features
 
-1. **Weather Dashboard & Forecast Analytics**
+### ✅ MVP Features (Complete - January 2026)
+
+1. **Tourist Registration & Profile Management** *(NEW)*
+   - User account creation with email and language preferences
+   - Support for 5 languages: English, Tamil, Hindi, French, Spanish
+   - Persistent user profiles with destination tracking
+   - Emergency contact information storage
+   - Profile editing and account management
+
+2. **Emergency SOS & Incident Reporting** *(NEW)*
+   - One-click emergency SOS button with automatic location sharing
+   - Comprehensive incident/hazard reporting form
+   - Citizen-sourced hazard information system
+   - Severity classification (Low, Moderate, High, Critical)
+   - Incident type categorization (floods, cyclones, storms, etc.)
+   - Report history and tracking
+
+3. **Safe Route Navigation** *(NEW)*
+   - Hazard-aware route calculation avoiding danger zones
+   - Distance and time estimation (walking/driving modes)
+   - Safety score computation (0-100%)
+   - Waypoint generation for alternate routes
+   - Real-time hazard intersection detection
+   - Safety recommendations and warnings
+
+4. **Authority Dashboard** *(NEW)*
+   - Real-time incident verification and resolution workflow
+   - SOS request management and emergency response coordination
+   - Dashboard statistics and KPIs
+   - Incident filtering by status (unverified, verified, resolved)
+   - Expedited response tracking
+
+### Original Features (Already Complete)
+
+5. **Weather Dashboard & Forecast Analytics**
    - Live meteorological data from **Open-Meteo** (Temperature, Precipitation, Wind Speed, Relative Humidity, WMO conditions).
    - Multi-day trend charts powered by Recharts.
    - City and destination locator with graceful fallback to known tourist coordinates.
    - Honest data origin tracking (`live_weather_api` vs `cached_provider_data`).
 
-2. **Interactive Safety Map (Leaflet & OpenStreetMap)**
+6. **Interactive Safety Map (Leaflet & OpenStreetMap)**
    - Custom SVG-rendered markers for **Emergency Shelters (Green)**, **Hospitals (Red)**, and **Hazard Zones**.
    - Geometric polygon rendering for flood inundation buffers and exclusion zones.
    - Detailed popups displaying capacity, current occupancy, verification timestamp, and open/closed status.
    - Quick sector jump buttons (Chennai sector, Miami sector).
 
-3. **Disaster Alerts & Source Verification Registry**
+7. **Disaster Alerts & Source Verification Registry**
    - Severity-classified alerts: *Critical*, *High*, *Moderate*, *Low*.
    - Domain-level allowlisting (NOAA, IMD, MeteoAlarm, BMDI, WHO, Red Cross) with anti-SSRF protections.
    - Status classifications: `Official source`, `Verified`, `Unverified report`, and `Expired`.
    - Clear distinction for simulation records with explicit **DEMO DATA** badges.
 
-4. **AI Emergency Assistant (Zero-Hallucination Fallback Mode)**
+8. **AI Emergency Assistant (Zero-Hallucination Fallback Mode)**
    - Chatbot interface answering critical queries on flash floods, cyclone protocols, shelter guidance, and contact numbers.
    - Deterministic rule-based safety engine ensuring no fabricated facts, emergency numbers, or false safety guarantees.
    - Citations with direct links to verified civil protection authorities.
 
-5. **Multilingual Interface & Emergency Guidance**
+9. **Multilingual Interface & Emergency Guidance**
    - Full support for **English**, **Tamil (தமிழ்)**, **Hindi (हिन्दी)**, **French (Français)**, and **Spanish (Español)**.
    - Pre-mapped safety guidance preserving exact emergency meanings.
+
+---
+
+## 📚 New MVP Feature Documentation
+
+For detailed implementation information on the 4 new MVP features, see:
+
+- **[IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md)** - Feature-by-feature breakdown with API endpoints and database schema
+- **[QUICKSTART.md](./QUICKSTART.md)** - Step-by-step testing guide with example workflows for each feature
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture, data flow diagrams, and technical decisions
+
+### Quick Access to New Features
+
+After running the app (see section below):
+
+1. **Tourist Registration** → http://localhost:5173/register
+2. **View/Edit Profile** → http://localhost:5173/profile
+3. **Report Incident/SOS** → http://localhost:5173/report (SOS button always visible)
+4. **Navigate Safe Routes** → http://localhost:5173/route
+5. **Authority Dashboard** → http://localhost:5173/admin
 
 ---
 
