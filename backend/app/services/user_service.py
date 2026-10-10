@@ -160,9 +160,11 @@ class IncidentService:
             severity=incident.severity,
             status=incident.status,
             verification_status=incident.verification_status,
+            photo_url=incident.photo_url,
             created_at=incident.created_at,
             updated_at=incident.updated_at
         )
+
 
 class SOSService:
     

@@ -204,8 +204,10 @@ class IncidentResponse(BaseModel):
     severity: str
     status: str
     verification_status: str
+    photo_url: Optional[str] = None
     created_at: datetime
     updated_at: datetime
+
 
 # --- SOS Schemas ---
 class SOSCreate(BaseModel):

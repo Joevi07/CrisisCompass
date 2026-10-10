@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { translations } from '../translations';
+import { TRANSLATIONS as translations } from '../translations';
+
 
 interface UserProfile {
   id: string;

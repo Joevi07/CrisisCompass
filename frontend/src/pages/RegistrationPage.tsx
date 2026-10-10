@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { translations } from '../translations';
+import { TRANSLATIONS as translations } from '../translations';
+
 
 interface RegistrationFormData {
   email: string;
