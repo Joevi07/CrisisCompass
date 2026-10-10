@@ -125,3 +125,20 @@ export interface ConfigStatusResponse {
   trusted_domains_count: number;
   server_time: string;
 }
+
+export interface IncidentReport {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+  incident_type: string;
+  severity: string;
+  status: string;
+  verification_status: string;
+  photo_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+

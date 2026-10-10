@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChatResponse } from '../types';
-import { Bot, Send, ShieldCheck, AlertCircle, Sparkles, ExternalLink, HelpCircle } from 'lucide-react';
+import { Bot, Send, ShieldCheck, AlertCircle, Sparkles, ExternalLink, HelpCircle, Mic, Volume2, VolumeX } from 'lucide-react';
 import { TRANSLATIONS } from '../translations';
 
 interface AssistantPageProps {
@@ -22,6 +22,8 @@ export const AssistantPage: React.FC<AssistantPageProps> = ({ currentLang }) => 
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [speakingIdx, setSpeakingIdx] = useState<number | null>(null);
 
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
 
@@ -32,6 +34,45 @@ export const AssistantPage: React.FC<AssistantPageProps> = ({ currentLang }) => 
     "What are the emergency contact numbers?",
     "What should I do if my hotel area is flooded?",
   ];
+
+  const handleVoiceInput = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser.");
+      return;
+    }
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = currentLang === 'ta' ? 'ta-IN' : currentLang === 'hi' ? 'hi-IN' : currentLang === 'fr' ? 'fr-FR' : currentLang === 'es' ? 'es-ES' : 'en-US';
+      recognition.onstart = () => setIsListening(true);
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setIsListening(false);
+      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+      recognition.start();
+    } catch (e) {
+      setIsListening(false);
+    }
+  };
+
+  const handleSpeakText = (text: string, idx: number) => {
+    if (!('speechSynthesis' in window)) return;
+    if (speakingIdx === idx) {
+      window.speechSynthesis.cancel();
+      setSpeakingIdx(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = currentLang === 'ta' ? 'ta-IN' : currentLang === 'hi' ? 'hi-IN' : currentLang === 'fr' ? 'fr-FR' : currentLang === 'es' ? 'es-ES' : 'en-US';
+    utterance.onend = () => setSpeakingIdx(null);
+    utterance.onerror = () => setSpeakingIdx(null);
+    setSpeakingIdx(idx);
+    window.speechSynthesis.speak(utterance);
+  };
 
   const handleSend = async (queryText?: string) => {
     const textToSend = queryText || input;
@@ -91,10 +132,10 @@ export const AssistantPage: React.FC<AssistantPageProps> = ({ currentLang }) => 
         <div>
           <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
             <Bot className="w-6 h-6 text-blue-600" />
-            TravelTech Emergency Assistant
+            TravelTech Emergency AI Assistant
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Zero-hallucination guidance powered by verified disaster registries and local civil protection protocols.
+            Zero-hallucination guidance with voice input/output powered by verified disaster registries and local emergency protocols.
           </p>
         </div>
         <div className="hidden sm:block text-right">
@@ -131,13 +172,34 @@ export const AssistantPage: React.FC<AssistantPageProps> = ({ currentLang }) => 
               className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl p-4 text-sm leading-relaxed ${
+                className={`max-w-[85%] rounded-2xl p-4 text-sm leading-relaxed relative group ${
                   m.sender === 'user'
                     ? 'bg-orange-600 text-white shadow-sm rounded-br-none'
                     : 'bg-slate-50 border border-slate-200 text-slate-800 rounded-bl-none shadow-2xs'
                 }`}
               >
                 <div className="whitespace-pre-line">{m.text}</div>
+
+                {/* Text to Speech Button for Assistant Messages */}
+                {m.sender === 'assistant' && (
+                  <button
+                    onClick={() => handleSpeakText(m.text, idx)}
+                    title={speakingIdx === idx ? "Stop Voice" : "Listen to Response"}
+                    className="mt-2 text-xs text-blue-600 hover:text-blue-800 font-semibold inline-flex items-center gap-1 cursor-pointer bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200"
+                  >
+                    {speakingIdx === idx ? (
+                      <>
+                        <VolumeX className="w-3.5 h-3.5 text-red-500 animate-pulse" />
+                        Stop Voice
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 className="w-3.5 h-3.5" />
+                        Listen
+                      </>
+                    )}
+                  </button>
+                )}
 
                 {/* Citations & Metadata if provided */}
                 {m.responseMeta && (
@@ -191,13 +253,27 @@ export const AssistantPage: React.FC<AssistantPageProps> = ({ currentLang }) => 
               e.preventDefault();
               handleSend();
             }}
-            className="flex gap-2"
+            className="flex gap-2 items-center"
           >
+            {/* Voice Input Button */}
+            <button
+              type="button"
+              onClick={handleVoiceInput}
+              title="Voice Input (Speech-to-Text)"
+              className={`p-2.5 rounded-xl border transition cursor-pointer ${
+                isListening
+                  ? 'bg-red-600 text-white border-red-600 animate-pulse'
+                  : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300'
+              }`}
+            >
+              <Mic className="w-5 h-5" />
+            </button>
+
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about flash floods, shelter routes, or emergency contacts..."
+              placeholder={isListening ? "Listening... Speak now..." : "Ask about flash floods, shelter routes, or emergency contacts..."}
               className="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-800 placeholder-slate-400"
             />
             <button

@@ -152,6 +152,83 @@ class ChatResponse(BaseModel):
     model_or_rule: str
     disclaimer: str
 
+# --- User & Registration Schemas ---
+class UserRegister(BaseModel):
+    email: str
+    full_name: str
+    phone_number: Optional[str] = None
+    destination: str
+    language_preference: str = "en"
+    emergency_contact: Optional[str] = None
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone_number: Optional[str] = None
+    destination: Optional[str] = None
+    language_preference: Optional[str] = None
+    emergency_contact: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+
+class UserProfile(BaseModel):
+    id: str
+    email: str
+    full_name: str
+    phone_number: Optional[str] = None
+    destination: str
+    language_preference: str
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    emergency_contact: Optional[str] = None
+    created_at: datetime
+    is_active: bool
+
+# --- Incident Report Schemas ---
+class IncidentCreate(BaseModel):
+    title: str
+    description: str
+    latitude: float
+    longitude: float
+    incident_type: str
+    severity: str
+    photo_url: Optional[str] = None
+
+class IncidentResponse(BaseModel):
+    id: str
+    user_id: str
+    title: str
+    description: str
+    latitude: float
+    longitude: float
+    incident_type: str
+    severity: str
+    status: str
+    verification_status: str
+    photo_url: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+
+# --- SOS Schemas ---
+class SOSCreate(BaseModel):
+    latitude: float
+    longitude: float
+    message: Optional[str] = None
+
+class SOSResponse(BaseModel):
+    id: str
+    user_id: str
+    latitude: float
+    longitude: float
+    status: str
+    message: Optional[str] = None
+    created_at: datetime
+
+class AuthorityUpdate(BaseModel):
+    verification_status: Optional[str] = None
+    status: Optional[str] = None
+    resolution_notes: Optional[str] = None
+
 # --- Config Status ---
 class ServiceStatus(BaseModel):
     service_name: str

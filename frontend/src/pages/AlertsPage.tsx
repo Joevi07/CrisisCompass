@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Alert } from '../types';
 import { AlertCard } from '../components/AlertCard';
 import { TRANSLATIONS } from '../translations';
-import { Search, Filter, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { 
+  Search, Filter, ShieldCheck, AlertTriangle, 
+  Volume2, VolumeX, Copy, Check, Radio, ExternalLink 
+} from 'lucide-react';
 
 interface AlertsPageProps {
   currentLang: string;
@@ -11,11 +14,14 @@ interface AlertsPageProps {
 export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [filteredAlerts, setFilteredAlerts] = useState<Alert[]>([]);
-  const [severityFilter, setSeverityFilter] = useState<string>('all');
-  const [hazardFilter, setHazardFilter] = useState<string>('all');
-  const [verificationFilter, setVerificationFilter] = useState<string>('all');
+  const [activeCategory, setActiveCategory] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
   const [loading, setLoading] = useState(false);
+
+  // Translate Alert Card state (Reference screen "Translate Alert")
+  const [selectedAlertForTrans, setSelectedAlertForTrans] = useState<Alert | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
 
@@ -25,8 +31,12 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
       const res = await fetch(`/api/alerts?lang=${currentLang}`);
       if (res.ok) {
         const data = await res.json();
-        setAlerts(data.alerts || []);
-        setFilteredAlerts(data.alerts || []);
+        const alertList: Alert[] = data.alerts || [];
+        setAlerts(alertList);
+        setFilteredAlerts(alertList);
+        if (alertList.length > 0 && !selectedAlertForTrans) {
+          setSelectedAlertForTrans(alertList[0]);
+        }
       }
     } catch (e) {
       console.error('Error fetching alerts:', e);
@@ -42,16 +52,14 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
   useEffect(() => {
     let result = [...alerts];
 
-    if (severityFilter !== 'all') {
-      result = result.filter(a => a.severity.toLowerCase() === severityFilter.toLowerCase());
-    }
-
-    if (hazardFilter !== 'all') {
-      result = result.filter(a => a.hazard_type.toLowerCase() === hazardFilter.toLowerCase());
-    }
-
-    if (verificationFilter !== 'all') {
-      result = result.filter(a => a.verification_status.toLowerCase() === verificationFilter.toLowerCase());
+    if (activeCategory === 'weather') {
+      result = result.filter(a => a.hazard_type === 'storm' || a.hazard_type === 'heavy_rain');
+    } else if (activeCategory === 'flood') {
+      result = result.filter(a => a.hazard_type === 'flood');
+    } else if (activeCategory === 'cyclone') {
+      result = result.filter(a => a.hazard_type === 'cyclone');
+    } else if (activeCategory === 'road') {
+      result = result.filter(a => a.hazard_type === 'restricted');
     }
 
     if (search.trim()) {
@@ -65,102 +73,179 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
     }
 
     setFilteredAlerts(result);
-  }, [severityFilter, hazardFilter, verificationFilter, search, alerts]);
+  }, [activeCategory, search, alerts]);
+
+  const handleCopyText = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleSpeakText = (text: string) => {
+    if (!('speechSynthesis' in window)) return;
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = currentLang === 'ta' ? 'ta-IN' : currentLang === 'hi' ? 'hi-IN' : 'en-US';
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-              <AlertTriangle className="w-6 h-6 text-red-500" />
-              {t.active_alerts}
-            </h1>
-            <p className="text-sm text-slate-500 mt-1">
-              Authoritative disaster warnings with domain verification, expiry detection, and safety protocols.
-            </p>
+    <div className="space-y-8 pb-12">
+      
+      {/* Page Header */}
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-[#DF4444] text-xs font-bold mb-2">
+            <Radio className="w-3.5 h-3.5 animate-pulse" />
+            Verified Civil Defense Broadcasts
           </div>
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
-              Total Records: {filteredAlerts.length}
-            </span>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-[#0F4C5C]">
+            {t.live_alerts_title}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Real-time storm bulletins, flood advisories and official evacuation orders.
+          </p>
         </div>
 
-        {/* Filters and Search Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-6 pt-4 border-t border-slate-100">
+        {/* Filter Pills matching Reference ("All", "Weather", "Flood", "Cyclone", "Road Closure") */}
+        <div className="flex flex-wrap items-center gap-2">
+          {[
+            { id: 'all', label: t.filter_all },
+            { id: 'weather', label: t.filter_weather },
+            { id: 'flood', label: t.filter_flood },
+            { id: 'cyclone', label: t.filter_cyclone },
+            { id: 'road', label: t.filter_road },
+          ].map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+                activeCategory === cat.id
+                  ? 'bg-[#0F4C5C] text-white shadow-xs'
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left 2 Cols: Alerts Feed */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Search bar */}
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search keyword or city..."
-              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              placeholder="Search keyword, district or authority..."
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0F4C5C]"
             />
           </div>
 
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-slate-400 flex-shrink-0" />
-            <select
-              value={severityFilter}
-              onChange={(e) => setSeverityFilter(e.target.value)}
-              className="w-full py-2 px-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none cursor-pointer"
-            >
-              <option value="all">Severity: All</option>
-              <option value="critical">Critical</option>
-              <option value="high">High</option>
-              <option value="moderate">Moderate</option>
-              <option value="low">Low</option>
-            </select>
-          </div>
+          {loading ? (
+            <div className="text-center py-16 text-slate-400 text-sm">Loading verified crisis bulletins...</div>
+          ) : filteredAlerts.length > 0 ? (
+            <div className="space-y-4">
+              {filteredAlerts.map((alert) => (
+                <div 
+                  key={alert.id}
+                  onClick={() => setSelectedAlertForTrans(alert)}
+                  className="cursor-pointer transition-transform hover:scale-[1.01]"
+                >
+                  <AlertCard alert={alert} currentLang={currentLang} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-3xl p-12 text-center border border-slate-100">
+              <p className="text-slate-600 font-bold mb-1">No active advisories found</p>
+              <p className="text-xs text-slate-400">All districts are reporting normal conditions.</p>
+            </div>
+          )}
+        </div>
 
-          <div className="flex items-center gap-2">
-            <select
-              value={hazardFilter}
-              onChange={(e) => setHazardFilter(e.target.value)}
-              className="w-full py-2 px-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none cursor-pointer"
-            >
-              <option value="all">Hazard: All Types</option>
-              <option value="flood">Flood</option>
-              <option value="cyclone">Cyclone</option>
-              <option value="heavy_rain">Heavy Rain</option>
-              <option value="restricted">Restricted / Exclusion Zone</option>
-            </select>
-          </div>
+        {/* Right 1 Col: "Translate Alert" Card matching Reference Screen */}
+        <div className="space-y-6">
+          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm sticky top-28">
+            <h3 className="font-bold text-slate-900 text-base mb-4 flex items-center justify-between">
+              <span>{t.translate_alert_title}</span>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                Official Multi-Lingual
+              </span>
+            </h3>
 
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-slate-400 flex-shrink-0" />
-            <select
-              value={verificationFilter}
-              onChange={(e) => setVerificationFilter(e.target.value)}
-              className="w-full py-2 px-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none cursor-pointer"
-            >
-              <option value="all">Source: All Statuses</option>
-              <option value="official source">Official Source Only</option>
-              <option value="verified">Verified</option>
-              <option value="unverified report">Unverified Reports</option>
-            </select>
+            {selectedAlertForTrans ? (
+              <div className="space-y-4 text-xs">
+                {/* Original Message (English) Box */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                  <div className="flex items-center gap-2 text-slate-500 font-bold mb-1.5">
+                    <AlertTriangle className="w-4 h-4 text-[#FB9038]" />
+                    <span>{t.original_msg}</span>
+                  </div>
+                  <h4 className="font-bold text-slate-800 text-sm mb-1">{selectedAlertForTrans.title}</h4>
+                  <p className="text-slate-600 leading-relaxed">{selectedAlertForTrans.description}</p>
+                  <p className="text-[10px] text-slate-400 mt-2">
+                    Source: {selectedAlertForTrans.issuing_authority}
+                  </p>
+                </div>
+
+                {/* Translated Message Box */}
+                <div className="p-4 rounded-2xl bg-[#0F4C5C]/5 border border-[#0F4C5C]/15">
+                  <div className="flex items-center justify-between text-[#0F4C5C] font-bold mb-1.5">
+                    <span>{t.translated_msg} ({currentLang.toUpperCase()})</span>
+                    <span className="text-[10px] bg-[#0F4C5C] text-white px-2 py-0.5 rounded-full">
+                      Verified Translation
+                    </span>
+                  </div>
+                  <h4 className="font-bold text-slate-800 text-sm mb-1">
+                    {selectedAlertForTrans.translated_title || selectedAlertForTrans.title}
+                  </h4>
+                  <p className="text-slate-700 leading-relaxed font-medium">
+                    {selectedAlertForTrans.translated_description || selectedAlertForTrans.description}
+                  </p>
+                </div>
+
+                {/* Action Buttons: Listen & Copy matching Reference Screen */}
+                <div className="grid grid-cols-2 gap-2 pt-2">
+                  <button
+                    onClick={() => handleSpeakText(selectedAlertForTrans.translated_description || selectedAlertForTrans.description)}
+                    className="p-2.5 rounded-xl bg-[#0F4C5C] hover:bg-[#0c3c49] text-white font-bold flex items-center justify-center gap-2 transition cursor-pointer"
+                  >
+                    {isSpeaking ? <VolumeX className="w-4 h-4 text-[#FB9038]" /> : <Volume2 className="w-4 h-4" />}
+                    <span>{isSpeaking ? 'Stop' : t.listen_btn}</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleCopyText(`${selectedAlertForTrans.title}\n${selectedAlertForTrans.description}`)}
+                    className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold flex items-center justify-center gap-2 transition cursor-pointer"
+                  >
+                    {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-slate-400" />}
+                    <span>{copied ? 'Copied!' : t.copy_btn}</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-400 text-center py-8">
+                Select an alert card from the list to view translations and audio synthesis.
+              </p>
+            )}
           </div>
         </div>
+
       </div>
 
-      {/* Alert Listings */}
-      {loading ? (
-        <div className="text-center py-16 text-slate-400">Loading alerts registry...</div>
-      ) : filteredAlerts.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredAlerts.map((alert) => (
-            <AlertCard key={alert.id} alert={alert} currentLang={currentLang} />
-          ))}
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
-          <p className="text-slate-600 font-semibold mb-1">No matching disaster alerts found</p>
-          <p className="text-xs text-slate-400">Try adjusting your severity or hazard category filters.</p>
-        </div>
-      )}
     </div>
   );
 };

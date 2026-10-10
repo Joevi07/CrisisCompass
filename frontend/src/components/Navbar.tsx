@@ -1,131 +1,297 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { Compass, AlertTriangle, MapPin, Bot, ShieldCheck, Globe, Wifi } from 'lucide-react';
+import React, { useState } from 'react';
+import { NavLink, Link } from 'react-router-dom';
+import { 
+  Compass, AlertTriangle, MapPin, Bot, ShieldCheck, 
+  Globe, Bell, PhoneCall, ShieldAlert, Navigation, 
+  Menu, X, Sparkles, User, FileText, Activity
+} from 'lucide-react';
+import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../translations';
 
 interface NavbarProps {
   currentLang: string;
   onLanguageChange: (lang: string) => void;
   appMode?: string;
+  alertCount?: number;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentLang, onLanguageChange, appMode = "demo" }) => {
-  const languages = [
-    { code: 'en', label: 'English' },
-    { code: 'ta', label: 'தமிழ்' },
-    { code: 'hi', label: 'हिन्दी' },
-    { code: 'fr', label: 'Français' },
-    { code: 'es', label: 'Español' },
-  ];
+export const Navbar: React.FC<NavbarProps> = ({ 
+  currentLang, 
+  onLanguageChange, 
+  appMode = "demo",
+  alertCount = 3
+}) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+
+  const currentLangObj = SUPPORTED_LANGUAGES.find(l => l.code === currentLang) || SUPPORTED_LANGUAGES[0];
 
   return (
-    <header className="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+    <header className="bg-white border-b border-slate-100 sticky top-0 z-50 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Brand */}
-          <div className="flex items-center space-x-3">
-            <div className="bg-orange-500 p-2 rounded-lg text-white shadow-inner flex items-center justify-center">
-              <Compass className="w-6 h-6 animate-pulse" />
+        <div className="flex items-center justify-between h-20">
+          
+          {/* Logo & Brand matching Reference Design: TravelTech with geometric icon */}
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-xl bg-[#0F4C5C] flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform duration-200">
+              {/* Reference polygon/triangle logo shape */}
+              <div className="flex items-center gap-0.5">
+                <div className="w-2.5 h-5 bg-[#38BDAC] rounded-xs transform -skew-x-12"></div>
+                <div className="w-2.5 h-6 bg-white rounded-xs transform skew-x-12"></div>
+              </div>
             </div>
             <div>
-              <span className="font-extrabold text-xl tracking-tight text-white flex items-center gap-2">
-                TravelTech <span className="text-orange-400 font-light text-sm bg-slate-800 px-2 py-0.5 rounded border border-slate-700">CrisisCompass</span>
-              </span>
-              <p className="text-xs text-slate-400 hidden sm:block">Tourist Emergency Communication Platform</p>
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-extrabold text-2xl tracking-tight text-[#0F4C5C]">TravelTech</span>
+              </div>
+              <p className="text-[11px] font-medium text-slate-400 hidden sm:block tracking-wide">
+                Your Safety. Our Priority.
+              </p>
             </div>
-          </div>
+          </Link>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex space-x-1 lg:space-x-2">
+          {/* Center Navigation Links (Clean pill style matching reference) */}
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-1.5 ${
-                  isActive ? 'bg-slate-800 text-orange-400 border border-slate-700' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                `px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                  isActive 
+                    ? 'text-[#0F4C5C] bg-[#F3F4F6] font-bold' 
+                    : 'text-slate-600 hover:text-[#0F4C5C] hover:bg-slate-50'
                 }`
               }
             >
-              Dashboard
+              {t.nav_home}
             </NavLink>
+
             <NavLink
               to="/alerts"
               className={({ isActive }) =>
-                `px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-1.5 ${
-                  isActive ? 'bg-slate-800 text-orange-400 border border-slate-700' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                `px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 ${
+                  isActive 
+                    ? 'text-[#0F4C5C] bg-[#F3F4F6] font-bold' 
+                    : 'text-slate-600 hover:text-[#0F4C5C] hover:bg-slate-50'
                 }`
               }
             >
-              <AlertTriangle className="w-4 h-4 text-orange-400" />
-              Live Alerts
+              <span>{t.nav_alerts}</span>
+              {alertCount > 0 && (
+                <span className="w-5 h-5 rounded-full bg-[#DF4444] text-white text-[11px] font-bold flex items-center justify-center">
+                  {alertCount}
+                </span>
+              )}
             </NavLink>
+
             <NavLink
               to="/map"
               className={({ isActive }) =>
-                `px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-1.5 ${
-                  isActive ? 'bg-slate-800 text-orange-400 border border-slate-700' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                `px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                  isActive 
+                    ? 'text-[#0F4C5C] bg-[#F3F4F6] font-bold' 
+                    : 'text-slate-600 hover:text-[#0F4C5C] hover:bg-slate-50'
                 }`
               }
             >
-              <MapPin className="w-4 h-4 text-emerald-400" />
-              Safety Map
+              {t.nav_map}
             </NavLink>
+
+            <NavLink
+              to="/route"
+              className={({ isActive }) =>
+                `px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                  isActive 
+                    ? 'text-[#0F4C5C] bg-[#F3F4F6] font-bold' 
+                    : 'text-slate-600 hover:text-[#0F4C5C] hover:bg-slate-50'
+                }`
+              }
+            >
+              {t.nav_route}
+            </NavLink>
+
             <NavLink
               to="/assistant"
               className={({ isActive }) =>
-                `px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-1.5 ${
-                  isActive ? 'bg-slate-800 text-orange-400 border border-slate-700' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                `px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center gap-1 ${
+                  isActive 
+                    ? 'text-[#0F4C5C] bg-[#F3F4F6] font-bold' 
+                    : 'text-slate-600 hover:text-[#0F4C5C] hover:bg-slate-50'
                 }`
               }
             >
-              <Bot className="w-4 h-4 text-blue-400" />
-              AI Assistant
+              <Sparkles className="w-3.5 h-3.5 text-[#FB9038]" />
+              {t.nav_assistant}
             </NavLink>
+
             <NavLink
-              to="/settings"
+              to="/report"
               className={({ isActive }) =>
-                `px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-1.5 ${
-                  isActive ? 'bg-slate-800 text-orange-400 border border-slate-700' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                `px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                  isActive 
+                    ? 'text-[#0F4C5C] bg-[#F3F4F6] font-bold' 
+                    : 'text-slate-600 hover:text-[#0F4C5C] hover:bg-slate-50'
                 }`
               }
             >
-              <ShieldCheck className="w-4 h-4 text-purple-400" />
-              Sources & Status
+              {t.nav_guide}
+            </NavLink>
+
+            <NavLink
+              to="/advanced"
+              className={({ isActive }) =>
+                `px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 ${
+                  isActive 
+                    ? 'text-[#0F4C5C] bg-[#F3F4F6] font-bold' 
+                    : 'text-slate-600 hover:text-[#0F4C5C] hover:bg-slate-50'
+                }`
+              }
+            >
+              <Activity className="w-3.5 h-3.5 text-[#38BDAC]" />
+              {t.nav_advanced}
             </NavLink>
           </nav>
 
-          {/* Right Toolbar: Language & Mode */}
-          <div className="flex items-center space-x-3">
-            <span className="hidden lg:inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-800 border border-amber-500/40 text-amber-300">
-              <Wifi className="w-3 h-3 text-amber-400" />
-              {appMode === 'demo' ? 'DEMO MODE' : 'LIVE API'}
-            </span>
+          {/* Right Toolbar: Notifications, Language Selector, SOS Button, Avatar */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            
+            {/* Red SOS Pill Button */}
+            <NavLink
+              to="/report"
+              className="bg-[#DF4444] hover:bg-red-600 text-white px-3.5 py-2 rounded-full font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-sm transition-transform active:scale-95"
+            >
+              <PhoneCall className="w-3.5 h-3.5 animate-pulse" />
+              <span>SOS</span>
+            </NavLink>
 
-            {/* Language Selector */}
-            <div className="flex items-center bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-sm text-slate-200">
-              <Globe className="w-4 h-4 mr-1.5 text-slate-400" />
-              <select
-                value={currentLang}
-                onChange={(e) => onLanguageChange(e.target.value)}
-                className="bg-transparent text-white focus:outline-none cursor-pointer text-xs sm:text-sm font-medium"
+            {/* Notification Bell */}
+            <NavLink
+              to="/alerts"
+              className="relative p-2.5 rounded-full text-slate-500 hover:bg-slate-100 hover:text-[#0F4C5C] transition"
+              title="Crisis Alerts"
+            >
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#DF4444]"></span>
+            </NavLink>
+
+            {/* Language Selector Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold transition cursor-pointer"
+                title="Change Language"
               >
-                {languages.map((l) => (
-                  <option key={l.code} value={l.code} className="bg-slate-900 text-white">
-                    {l.label}
-                  </option>
-                ))}
-              </select>
+                <Globe className="w-4 h-4 text-[#38BDAC]" />
+                <span>{currentLangObj.nativeName}</span>
+              </button>
+
+              {langDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-1">
+                    Select Language ({SUPPORTED_LANGUAGES.length})
+                  </div>
+                  <div className="max-h-72 overflow-y-auto">
+                    {SUPPORTED_LANGUAGES.map((lang) => (
+                      <button
+                        key={lang.code}
+                        onClick={() => {
+                          onLanguageChange(lang.code);
+                          setLangDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3.5 py-2 text-xs sm:text-sm flex items-center justify-between hover:bg-slate-50 cursor-pointer ${
+                          currentLang === lang.code ? 'font-bold text-[#0F4C5C] bg-[#F3F4F6]' : 'text-slate-600'
+                        }`}
+                      >
+                        <span>{lang.nativeName}</span>
+                        <span className="text-[11px] text-slate-400 font-normal">({lang.name})</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Profile Avatar matching reference ("MJ") */}
+            <Link
+              to="/profile"
+              className="w-9 h-9 rounded-full bg-[#0F4C5C] text-white font-bold text-xs flex items-center justify-center hover:opacity-90 transition shadow-xs"
+              title="Tourist Profile"
+            >
+              MJ
+            </Link>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Bar */}
-      <div className="md:hidden flex justify-around bg-slate-950 py-2 border-t border-slate-800 text-xs">
-        <NavLink to="/" className="text-slate-400 hover:text-white px-2 py-1">Dashboard</NavLink>
-        <NavLink to="/alerts" className="text-slate-400 hover:text-white px-2 py-1">Alerts</NavLink>
-        <NavLink to="/map" className="text-slate-400 hover:text-white px-2 py-1">Map</NavLink>
-        <NavLink to="/assistant" className="text-slate-400 hover:text-white px-2 py-1">Assistant</NavLink>
-        <NavLink to="/settings" className="text-slate-400 hover:text-white px-2 py-1">Status</NavLink>
-      </div>
+      {/* Mobile Drawer */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden bg-white border-t border-slate-100 px-4 pt-3 pb-6 space-y-2 shadow-lg">
+          <NavLink
+            to="/"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            {t.nav_home}
+          </NavLink>
+          <NavLink
+            to="/alerts"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            <span>{t.nav_alerts}</span>
+            <span className="px-2 py-0.5 rounded-full bg-[#DF4444] text-white text-xs font-bold">{alertCount}</span>
+          </NavLink>
+          <NavLink
+            to="/map"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            {t.nav_map}
+          </NavLink>
+          <NavLink
+            to="/route"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            {t.nav_route}
+          </NavLink>
+          <NavLink
+            to="/assistant"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            {t.nav_assistant}
+          </NavLink>
+          <NavLink
+            to="/report"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            {t.nav_guide}
+          </NavLink>
+          <NavLink
+            to="/advanced"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-lg text-sm font-semibold text-[#0F4C5C] bg-[#F3F4F6]"
+          >
+            {t.nav_advanced}
+          </NavLink>
+          <NavLink
+            to="/settings"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            {t.nav_status}
+          </NavLink>
+        </div>
+      )}
     </header>
   );
 };
