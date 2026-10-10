@@ -60,6 +60,7 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, currentLang = 'en' 
 
   const displayTitle = currentLang !== 'en' && alert.translated_title ? alert.translated_title : alert.title;
   const displayDescription = currentLang !== 'en' && alert.translated_description ? alert.translated_description : alert.description;
+  const isDemoData = alert.data_origin === 'simulated_demo_data';
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition p-5 flex flex-col justify-between">
@@ -74,7 +75,9 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, currentLang = 'en' 
               {alert.hazard_type}
             </span>
           </div>
-          <div>{getVerificationBadge(alert.verification_status)}</div>
+          <div>{isDemoData
+            ? <span className="inline-flex rounded-full border border-amber-300 bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900">Demo only · not an official warning</span>
+            : getVerificationBadge(alert.verification_status)}</div>
         </div>
 
         {/* Title */}
@@ -110,13 +113,7 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, currentLang = 'en' 
           <span>Updated: {new Date(alert.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
         </div>
         
-        {alert.data_origin === 'simulated_demo_data' && (
-          <span className="text-[10px] font-semibold tracking-wider text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-            DEMO DATA
-          </span>
-        )}
-
-        <a
+        {!isDemoData && <a
           href={alert.source_url}
           target="_blank"
           rel="noopener noreferrer"
@@ -124,7 +121,7 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, currentLang = 'en' 
         >
           Official Source
           <ExternalLink className="w-3 h-3" />
-        </a>
+        </a>}
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ConfigStatusResponse } from '../types';
 import { ShieldCheck, CheckCircle2, Globe, Database, Server, Info, AlertTriangle } from 'lucide-react';
-import { TRANSLATIONS } from '../translations';
+import { TRANSLATIONS, SUPPORTED_LANGUAGES } from '../translations';
 
 interface SettingsPageProps {
   currentLang: string;
@@ -50,11 +50,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentLang, onLangu
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {[
-            { code: 'en', label: 'English' },
-            { code: 'ta', label: 'தமிழ்' },
-            { code: 'hi', label: 'हिन्दी' },
-            { code: 'fr', label: 'Français' },
-            { code: 'es', label: 'Español' },
+            ...SUPPORTED_LANGUAGES.map(({ code, nativeName }) => ({ code, label: nativeName })),
           ].map((item) => (
             <button
               key={item.code}

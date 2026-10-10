@@ -1,273 +1,181 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polygon, Circle } from 'react-leaflet';
+import React, { useCallback, useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, CircleMarker } from 'react-leaflet';
 import L from 'leaflet';
-import { Facility, HazardZone } from '../types';
-import { Shield, Home, Hospital, AlertTriangle, Navigation, RotateCcw, Filter, Layers } from 'lucide-react';
+import { Facility, HazardZone, WeatherResponse } from '../types';
+import { AlertTriangle, Hospital, Layers, LocateFixed, RefreshCw, Search, Home } from 'lucide-react';
+import { fetchWithOfflineFallback } from '../utils/offlineCache';
 
-// Custom Map Markers using standard Leaflet DivIcon with inline SVG styling
-const createCustomIcon = (bgColor: string, text: string) => {
-  return L.divIcon({
-    className: 'custom-map-icon',
-    html: `
-      <div style="background-color: ${bgColor}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border: 2px solid white;">
-        ${text}
-      </div>
-    `,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32],
-  });
-};
+const createCustomIcon = (bgColor: string, text: string) => L.divIcon({
+  className: 'custom-map-icon',
+  html: `<div style="background-color:${bgColor};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:14px;box-shadow:0 4px 6px rgba(0,0,0,.3);border:2px solid white">${text}</div>`,
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
 
-const shelterIcon = createCustomIcon('#10b981', '🏠');
-const hospitalIcon = createCustomIcon('#ef4444', '🏥');
-const floodIcon = createCustomIcon('#3b82f6', '🌊');
-const cycloneIcon = createCustomIcon('#8b5cf6', '🌀');
-const dangerIcon = createCustomIcon('#dc2626', '⚠️');
+const shelterIcon = createCustomIcon('#10b981', '⌂');
+const hospitalIcon = createCustomIcon('#ef4444', '+');
 
 export const SafetyMapPage: React.FC = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [hazards, setHazards] = useState<HazardZone[]>([]);
-  const [center, setCenter] = useState<[number, number]>([13.0827, 80.2707]); // Default Chennai
-  const [zoom] = useState(12);
+  const [center, setCenter] = useState<[number, number]>([22.5, 79.0]);
+  const [zoom, setZoom] = useState(5);
   const [facilityFilter, setFacilityFilter] = useState<'all' | 'shelter' | 'hospital'>('all');
   const [showHazards, setShowHazards] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState<string>('');
+  const [lastUpdated, setLastUpdated] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [locationLabel, setLocationLabel] = useState('India overview');
+  const [loading, setLoading] = useState(false);
+  const [warning, setWarning] = useState('');
 
-  const loadMapData = async () => {
+  const loadMapData = useCallback(async (latitude: number, longitude: number) => {
+    setLoading(true);
+    setWarning('');
+    const key = `${latitude.toFixed(2)}_${longitude.toFixed(2)}`;
+    const params = `latitude=${latitude}&longitude=${longitude}`;
+    const [facilityResult, hazardResult] = await Promise.allSettled([
+      fetchWithOfflineFallback<Facility[]>(`/api/map/nearby?${params}&radius_km=25`, `nearby_facilities_${key}`),
+      fetchWithOfflineFallback<HazardZone[]>(`/api/map/hazards?${params}&radius_km=1500`, `nearby_hazards_${key}`),
+    ]);
+    if (facilityResult.status === 'fulfilled') setFacilities(facilityResult.value.data || []);
+    if (hazardResult.status === 'fulfilled') setHazards(hazardResult.value.data || []);
+    setWarning(facilityResult.status === 'rejected' || hazardResult.status === 'rejected'
+      ? 'Some map layers could not refresh. Showing saved map data where available.' : '');
+    setLastUpdated(new Date().toLocaleTimeString());
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('crisiscompass_map_center');
+    if (saved) {
+      try {
+        const point = JSON.parse(saved) as [number, number];
+        if (Number.isFinite(point[0]) && Number.isFinite(point[1])) {
+          setCenter(point);
+          setZoom(11);
+          setLocationLabel('Last viewed location');
+          return;
+        }
+      } catch { /* Use country overview when no valid saved center exists. */ }
+    }
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCenter([position.coords.latitude, position.coords.longitude]);
+          setZoom(11);
+          setLocationLabel('Your current area');
+        },
+        () => { void loadMapData(22.5, 79.0); },
+        { enableHighAccuracy: false, maximumAge: 300000, timeout: 7000 },
+      );
+    } else {
+      void loadMapData(22.5, 79.0);
+    }
+  }, [loadMapData]);
+
+  useEffect(() => {
+    localStorage.setItem('crisiscompass_map_center', JSON.stringify(center));
+    void loadMapData(center[0], center[1]);
+  }, [center, loadMapData]);
+
+  const handleSearch = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const query = searchQuery.trim();
+    if (!query) return;
+    setLoading(true);
+    setWarning('');
     try {
-      const fRes = await fetch('/api/map/shelters');
-      if (fRes.ok) {
-        const fData = await fRes.json();
-        setFacilities(fData);
-      }
-
-      const hRes = await fetch('/api/map/hazards');
-      if (hRes.ok) {
-        const hData = await hRes.json();
-        setHazards(hData);
-      }
-      setLastUpdated(new Date().toLocaleTimeString());
-    } catch (e) {
-      console.error('Failed to load map data:', e);
+      const result = await fetchWithOfflineFallback<WeatherResponse>(
+        `/api/weather?location=${encodeURIComponent(query)}`,
+        `location_search_${query.toLowerCase()}`,
+      );
+      setCenter([result.data.current.latitude, result.data.current.longitude]);
+      setZoom(11);
+      setLocationLabel(result.data.current.location_name);
+    } catch {
+      setWarning('Could not locate that place. Connect to the internet or open a location searched on this device before.');
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadMapData();
-  }, []);
-
-  const handleCenterChennai = () => {
-    setCenter([13.0827, 80.2707]);
-  };
-
-  const handleCenterMiami = () => {
-    setCenter([25.7617, -80.1918]);
-  };
-
-  const filteredFacilities = facilities.filter((f) => {
-    if (facilityFilter === 'all') return true;
-    return f.facility_type === facilityFilter;
-  });
+  const filteredFacilities = facilities.filter((facility) => facilityFilter === 'all' || facility.facility_type === facilityFilter);
 
   return (
     <div className="space-y-4">
-      {/* Map Control Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-black text-slate-900 flex items-center gap-2">
-            <Layers className="w-5 h-5 text-emerald-600" />
-            Interactive Tourist Safety Map
-          </h1>
-          <p className="text-xs text-slate-500">
-            OpenStreetMap live tiles with verified evacuation centres and hazard exclusion zones.
-          </p>
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 className="flex items-center gap-2 text-xl font-black text-slate-900"><Layers className="h-5 w-5 text-emerald-600" />Safety Map</h1>
+            <p className="text-xs text-slate-500">Search any mapped place in India or nearby countries; hazard feed and community-mapped facilities update when connected.</p>
+          </div>
+          <form onSubmit={handleSearch} className="flex w-full gap-2 lg:max-w-xl">
+            <input aria-label="Search a place" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search a city, district, village, or border area" className="min-w-0 flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            <button disabled={loading} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#0F4C5C] px-4 py-2 text-sm font-bold text-white disabled:opacity-60"><Search className="h-4 w-4" />Search</button>
+            <button type="button" title="Refresh nearby data" onClick={() => void loadMapData(center[0], center[1])} className="rounded-xl border border-slate-300 p-2 text-slate-700"><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /></button>
+          </form>
         </div>
-
-        {/* Toolbar & Filters */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs">
-            <Filter className="w-3.5 h-3.5 text-slate-400" />
-            <select
-              value={facilityFilter}
-              onChange={(e) => setFacilityFilter(e.target.value as any)}
-              className="bg-transparent text-slate-700 font-medium focus:outline-none cursor-pointer"
-            >
-              <option value="all">Facilities: All</option>
-              <option value="shelter">Shelters Only (Green)</option>
-              <option value="hospital">Hospitals Only (Red)</option>
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-600">
+          <span className="inline-flex items-center gap-1 font-semibold"><LocateFixed className="h-3.5 w-3.5" />{locationLabel}</span>
+          <label className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1">
+            <span>Facilities</span>
+            <select value={facilityFilter} onChange={(event) => setFacilityFilter(event.target.value as typeof facilityFilter)} className="bg-transparent font-medium">
+              <option value="all">All</option><option value="shelter">Shelters</option><option value="hospital">Healthcare</option>
             </select>
-          </div>
-
-          <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-            <input
-              type="checkbox"
-              checked={showHazards}
-              onChange={(e) => setShowHazards(e.target.checked)}
-              className="rounded text-orange-600 focus:ring-orange-500 cursor-pointer"
-            />
-            Show Hazard Polygons
           </label>
-
-          {/* Quick Relocate Buttons */}
-          <div className="flex items-center gap-1">
-            <button
-              onClick={handleCenterChennai}
-              className="px-3 py-1.5 bg-slate-800 text-white hover:bg-slate-700 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1"
-            >
-              <Navigation className="w-3 h-3 text-orange-400" />
-              Chennai Sector
-            </button>
-            <button
-              onClick={handleCenterMiami}
-              className="px-3 py-1.5 bg-slate-800 text-white hover:bg-slate-700 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1"
-            >
-              <Navigation className="w-3 h-3 text-blue-400" />
-              Miami Sector
-            </button>
-          </div>
+          <label className="inline-flex items-center gap-2"><input type="checkbox" checked={showHazards} onChange={(event) => setShowHazards(event.target.checked)} />Show flood reports</label>
+          <span>{loading ? 'Refreshing data…' : lastUpdated ? `Checked ${lastUpdated}` : 'Saved data may be shown offline'}</span>
         </div>
-      </div>
+        {warning && <p role="status" className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{warning}</p>}
+      </section>
 
-      {/* Map Container */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative">
-        <div className="h-[600px] w-full z-0">
-          <MapContainer
-            center={center}
-            zoom={zoom}
-            scrollWheelZoom={true}
-            style={{ height: '100%', width: '100%' }}
-            key={`${center[0]}-${center[1]}`}
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-
-            {/* Facilities: Shelters & Hospitals */}
-            {filteredFacilities.map((fac) => (
-              <Marker
-                key={fac.id}
-                position={[fac.latitude, fac.longitude]}
-                icon={fac.facility_type === 'shelter' ? shelterIcon : hospitalIcon}
-              >
+      <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="h-[min(70vh,680px)] min-h-[420px] w-full">
+          <MapContainer center={center} zoom={zoom} scrollWheelZoom style={{ height: '100%', width: '100%' }} key={`${center[0]}-${center[1]}-${zoom}`}>
+            <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            {filteredFacilities.map((facility) => (
+              <Marker key={facility.id} position={[facility.latitude, facility.longitude]} icon={facility.facility_type === 'shelter' ? shelterIcon : hospitalIcon}>
                 <Popup>
-                  <div className="p-1 max-w-xs">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded text-white ${fac.facility_type === 'shelter' ? 'bg-emerald-600' : 'bg-red-600'}`}>
-                        {fac.facility_type.toUpperCase()}
-                      </span>
-                      {fac.is_open && (
-                        <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                          VERIFIED OPEN
-                        </span>
-                      )}
-                    </div>
-                    <h4 className="font-bold text-sm text-slate-900 mb-1">{fac.name}</h4>
-                    <p className="text-xs text-slate-600 mb-2">{fac.address}</p>
-                    <div className="bg-slate-50 p-2 rounded text-xs space-y-1 mb-2">
-                      <p><strong>Contact:</strong> {fac.contact_number || 'N/A'}</p>
-                      {fac.capacity && (
-                        <p><strong>Capacity:</strong> {fac.current_occupancy || 0} / {fac.capacity} occupants</p>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-slate-500 italic mb-2">{fac.source_notes}</p>
-                    <div className="flex items-center justify-between text-[10px] text-slate-400 border-t pt-1">
-                      <span>Status verified: {new Date(fac.status_verified_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                      <span className="font-medium text-amber-600">{fac.data_origin}</span>
-                    </div>
+                  <div className="max-w-xs p-1">
+                    <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase">{facility.facility_type}</span>
+                    <h2 className="mt-2 font-bold">{facility.name}</h2>
+                    <p className="text-xs">{facility.address}</p>
+                    {facility.contact_number && <p className="mt-1 text-xs">Phone: {facility.contact_number}</p>}
+                    <p className="mt-2 text-xs text-amber-800">{facility.source_notes}</p>
+                    <a className="mt-1 inline-block text-xs text-blue-700 underline" href={`https://www.openstreetmap.org/${facility.id.split('-').slice(1).join('/')}`} target="_blank" rel="noreferrer">Open map listing</a>
                   </div>
                 </Popup>
               </Marker>
             ))}
-
-            {/* Hazard Zones (Polygons or Circles) */}
-            {showHazards && hazards.map((h) => {
-              if (h.is_polygon) {
-                return (
-                  <Polygon
-                    key={h.id}
-                    positions={h.coordinates as [number, number][]}
-                    pathOptions={{
-                      color: h.hazard_type === 'flood' ? '#2563eb' : '#dc2626',
-                      fillColor: h.hazard_type === 'flood' ? '#3b82f6' : '#ef4444',
-                      fillOpacity: 0.35,
-                      weight: 2,
-                    }}
-                  >
-                    <Popup>
-                      <div className="p-1 max-w-xs">
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-800 uppercase">
-                          {h.severity} {h.hazard_type} ZONE
-                        </span>
-                        <h4 className="font-bold text-sm text-slate-900 mt-1">{h.title}</h4>
-                        <p className="text-xs text-slate-600 my-1">{h.description}</p>
-                        <p className="text-[11px] text-slate-500">Source: {h.source_organization}</p>
-                        <span className="text-[10px] text-amber-600 font-semibold block mt-1">
-                          [{h.data_origin}]
-                        </span>
-                      </div>
-                    </Popup>
-                  </Polygon>
-                );
-              } else if (h.radius_meters) {
-                return (
-                  <Circle
-                    key={h.id}
-                    center={h.coordinates[0] as [number, number]}
-                    radius={h.radius_meters}
-                    pathOptions={{
-                      color: '#dc2626',
-                      fillColor: '#ef4444',
-                      fillOpacity: 0.3,
-                      weight: 2,
-                    }}
-                  >
-                    <Popup>
-                      <div className="p-1 max-w-xs">
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-800 uppercase">
-                          RESTRICTED EXCLUSION ZONE
-                        </span>
-                        <h4 className="font-bold text-sm text-slate-900 mt-1">{h.title}</h4>
-                        <p className="text-xs text-slate-600 my-1">{h.description}</p>
-                        <p className="text-[11px] text-slate-500">Source: {h.source_organization}</p>
-                      </div>
-                    </Popup>
-                  </Circle>
-                );
-              }
-              return null;
-            })}
+            {showHazards && hazards.map((hazard) => (
+              hazard.coordinates?.[0] && <CircleMarker
+                key={hazard.id}
+                center={hazard.coordinates[0] as [number, number]}
+                radius={9}
+                pathOptions={{ color: '#dc2626', fillColor: '#ef4444', fillOpacity: 0.25, weight: 2 }}
+              >
+                <Popup>
+                  <div className="max-w-xs p-1">
+                    <span className="rounded bg-red-100 px-2 py-1 text-[10px] font-bold uppercase text-red-800">{hazard.severity} flood alert</span>
+                    <h2 className="mt-2 font-bold">{hazard.title}</h2>
+                    <p className="text-xs">{hazard.description}</p>
+                    <p className="mt-2 text-xs text-slate-600">Source: {hazard.source_organization} · {new Date(hazard.reported_at).toLocaleString()}</p>
+                    <a href={hazard.source_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs text-blue-700 underline">Open original bulletin</a>
+                  </div>
+                </Popup>
+              </CircleMarker>
+            ))}
           </MapContainer>
         </div>
-
-        {/* Legend Overlay */}
-        <div className="p-4 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-4 text-xs">
-          <div className="flex flex-wrap items-center gap-4">
-            <span className="font-bold text-slate-300">Map Legend:</span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 inline-block"></span>
-              Emergency Shelter (Verified Open)
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-3.5 h-3.5 rounded-full bg-red-500 inline-block"></span>
-              Level 1 Trauma Hospital
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-3.5 h-3.5 rounded bg-blue-500/50 border border-blue-500 inline-block"></span>
-              Flood Inundation Polygon
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-3.5 h-3.5 rounded bg-red-500/50 border border-red-500 inline-block"></span>
-              Coastal Danger Exclusion Zone
-            </span>
-          </div>
-
-          <div className="text-slate-400">
-            Data refreshed: {lastUpdated || 'Just now'} • Tiles: &copy; OpenStreetMap
-          </div>
-        </div>
-      </div>
+        <footer className="flex flex-wrap items-center gap-x-5 gap-y-2 bg-slate-900 p-4 text-xs text-white">
+          <strong className="text-slate-300">Map legend:</strong>
+          <span className="inline-flex items-center gap-1"><Home className="h-3.5 w-3.5 text-emerald-400" />Community-listed shelters</span>
+          <span className="inline-flex items-center gap-1"><Hospital className="h-3.5 w-3.5 text-red-400" />Community-listed healthcare</span>
+          <span className="inline-flex items-center gap-1"><AlertTriangle className="h-3.5 w-3.5 text-red-400" />GDACS flood bulletin</span>
+          <span className="ml-auto text-slate-400">Facility availability is not verified. Confirm locally before relying on a listing.</span>
+        </footer>
+      </section>
     </div>
   );
 };
+

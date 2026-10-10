@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { BarChart3, AlertTriangle, CheckCircle, Clock, Users, Phone } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { BarChart3, AlertTriangle, CheckCircle, Clock, Users, Phone, ShieldCheck, LogOut } from 'lucide-react';
 
 interface Incident {
   id: string;
@@ -24,6 +24,9 @@ interface SOSRequest {
   status: string;
   message?: string;
   created_at: string;
+  full_name?: string | null;
+  phone_number?: string | null;
+  emergency_contact?: string | null;
 }
 
 interface DashboardStats {
@@ -37,7 +40,9 @@ interface DashboardStats {
 }
 
 export default function AdminDashboard() {
-  const adminId = localStorage.getItem('adminId') || 'admin-001';
+  const [token, setToken] = useState(() => sessionStorage.getItem('crisiscompass_admin_token') || '');
+  const [accessCode, setAccessCode] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [sosRequests, setSosRequests] = useState<SOSRequest[]>([]);
@@ -46,52 +51,80 @@ export default function AdminDashboard() {
   const [selectedIncident, setSelectedIncident] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState('all');
 
-  useEffect(() => {
-    fetchDashboardData();
-    // Refresh data every 30 seconds
-    const interval = setInterval(fetchDashboardData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const authorizedFetch = useCallback((path: string, init: RequestInit = {}) => fetch(`/api${path}`, {
+    ...init,
+    headers: { ...init.headers, Authorization: `Bearer ${token}` },
+  }), [token]);
 
-  const fetchDashboardData = async () => {
+  const handleAdminLogin = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setLoginLoading(true);
+    setError('');
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_code: accessCode }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.detail || 'Authority sign-in failed.');
+      sessionStorage.setItem('crisiscompass_admin_token', payload.access_token);
+      setToken(payload.access_token);
+      setAccessCode('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Authority sign-in failed.');
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const handleAdminSignOut = () => {
+    sessionStorage.removeItem('crisiscompass_admin_token');
+    setToken('');
+    setStats(null);
+    setIncidents([]);
+    setSosRequests([]);
+  };
+
+  const fetchDashboardData = useCallback(async () => {
+    if (!token) return;
     try {
       setLoading(true);
       setError('');
-
-      // Fetch stats
-      const statsRes = await fetch('http://localhost:8000/api/admin/stats');
-      if (statsRes.ok) {
-        const statsData = await statsRes.json();
-        setStats(statsData);
+      const [statsRes, incidentsRes, sosRes] = await Promise.all([
+        authorizedFetch('/admin/stats'),
+        authorizedFetch('/admin/incidents'),
+        authorizedFetch('/admin/sos/active'),
+      ]);
+      if ([statsRes, incidentsRes, sosRes].some((response) => response.status === 401)) {
+        handleAdminSignOut();
+        setError('Your authority session expired. Sign in again.');
+        return;
       }
-
-      // Fetch incidents
-      const incidentsRes = await fetch('http://localhost:8000/api/admin/incidents');
-      if (incidentsRes.ok) {
-        const incidentsData = await incidentsRes.json();
-        setIncidents(incidentsData);
+      if (![statsRes, incidentsRes, sosRes].every((response) => response.ok)) {
+        throw new Error('Could not refresh the authority data. Check the connection and try again.');
       }
-
-      // Fetch SOS requests
-      const sosRes = await fetch('http://localhost:8000/api/admin/sos/active');
-      if (sosRes.ok) {
-        const sosData = await sosRes.json();
-        setSosRequests(sosData);
-      }
+      setStats(await statsRes.json());
+      setIncidents(await incidentsRes.json());
+      setSosRequests(await sosRes.json());
     } catch (err) {
       setError('Failed to fetch dashboard data');
       console.error(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, authorizedFetch]);
+
+  useEffect(() => {
+    if (!token) return;
+    void fetchDashboardData();
+    const interval = setInterval(() => void fetchDashboardData(), 30000);
+    return () => clearInterval(interval);
+  }, [token, fetchDashboardData]);
 
   const handleVerifyIncident = async (incidentId: string) => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/admin/incidents/${incidentId}/verify?admin_id=${adminId}`,
-        { method: 'PUT' }
-      );
+      const response = await authorizedFetch(`/admin/incidents/${incidentId}/verify?admin_id=authority`, { method: 'PUT' });
 
       if (response.ok) {
         setIncidents(incidents.map(i =>
@@ -106,10 +139,7 @@ export default function AdminDashboard() {
 
   const handleResolveIncident = async (incidentId: string) => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/admin/incidents/${incidentId}/resolve?admin_id=${adminId}`,
-        { method: 'PUT' }
-      );
+      const response = await authorizedFetch(`/admin/incidents/${incidentId}/resolve?admin_id=authority`, { method: 'PUT' });
 
       if (response.ok) {
         setIncidents(incidents.map(i =>
@@ -124,10 +154,7 @@ export default function AdminDashboard() {
 
   const handleResolveSOS = async (sosId: string) => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/sos/${sosId}/resolve?admin_id=${adminId}`,
-        { method: 'PUT' }
-      );
+      const response = await authorizedFetch(`/sos/${sosId}/resolve?admin_id=authority`, { method: 'PUT' });
 
       if (response.ok) {
         setSosRequests(sosRequests.filter(s => s.id !== sosId));
@@ -159,6 +186,24 @@ export default function AdminDashboard() {
     }
   };
 
+  if (!token) {
+    return (
+      <div className="min-h-[calc(100vh-5rem)] bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-8 sm:py-14">
+        <form onSubmit={handleAdminLogin} className="mx-auto mt-6 w-full max-w-md rounded-2xl bg-white p-5 shadow-xl sm:mt-12 sm:p-8">
+          <div className="mb-5 flex items-center gap-3">
+            <ShieldCheck className="h-8 w-8 text-[#0F4C5C]" />
+            <div><h1 className="text-2xl font-bold text-slate-900">Authority sign in</h1><p className="text-sm text-slate-600">Protected access to incident and SOS records</p></div>
+          </div>
+          {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">{error}</p>}
+          <label htmlFor="authority-code" className="mb-2 block text-sm font-semibold text-slate-700">Authority access code</label>
+          <input id="authority-code" type="password" autoComplete="current-password" required value={accessCode} onChange={(event) => setAccessCode(event.target.value)} className="w-full rounded-lg border border-slate-300 px-3 py-3 text-base focus:border-[#0F4C5C] focus:outline-none" />
+          <button disabled={loginLoading} className="mt-4 w-full rounded-lg bg-[#0F4C5C] px-4 py-3 font-bold text-white disabled:opacity-60">{loginLoading ? 'Signing in…' : 'Sign in to Authority Desk'}</button>
+          <p className="mt-4 text-xs leading-relaxed text-slate-500">The server administrator must configure <code>ADMIN_ACCESS_CODE</code> and <code>ADMIN_TOKEN_SECRET</code> in the backend environment before authority sign-in is available.</p>
+        </form>
+      </div>
+    );
+  }
+
   if (loading && !stats) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -168,14 +213,17 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-3 py-6 pb-24 sm:px-4 sm:py-10 lg:pb-10">
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-          <div className="flex items-center gap-3 mb-2">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-8 mb-6 sm:mb-8">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+            <div className="flex items-center gap-3">
             <BarChart3 className="w-8 h-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Authority Dashboard</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Authority Dashboard</h1>
+            </div>
+            <button onClick={handleAdminSignOut} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700"><LogOut className="h-4 w-4" /> Sign out</button>
           </div>
           <p className="text-gray-600">
             Manage incidents, verify reports, and coordinate emergency responses
@@ -258,21 +306,22 @@ export default function AdminDashboard() {
         )}
 
         {/* Active SOS Requests */}
-        {sosRequests.length > 0 && (
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-8 mb-6 sm:mb-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Phone className="w-6 h-6 text-red-600" />
               Active SOS Requests ({sosRequests.length})
             </h2>
             
-            <div className="space-y-3">
+            {sosRequests.length === 0 ? <p className="rounded-lg bg-slate-50 p-4 text-sm text-slate-600">No active SOS requests. New SOS requests submitted while connected to this server will appear here, with updates polled every 30 seconds.</p> : <div className="space-y-3">
               {sosRequests.map((sos) => (
                 <div key={sos.id} className="bg-red-50 border-2 border-red-300 rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-3">
+                  <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start mb-3">
                     <div>
                       <p className="font-semibold text-gray-900">
-                        Emergency SOS from User {sos.user_id.substring(0, 8)}...
+                        Emergency SOS {sos.full_name ? `from ${sos.full_name}` : `from user ${sos.user_id.substring(0, 8)}…`}
                       </p>
+                      {sos.phone_number && <a href={`tel:${sos.phone_number}`} className="mt-1 inline-flex text-sm font-semibold text-blue-700 underline">Call tourist: {sos.phone_number}</a>}
+                      {sos.emergency_contact && <p className="text-sm text-gray-700">Emergency contact: {sos.emergency_contact}</p>}
                       <p className="text-sm text-gray-600 mt-1">
                         Location: {sos.latitude.toFixed(4)}°N, {sos.longitude.toFixed(4)}°E
                       </p>
@@ -283,7 +332,7 @@ export default function AdminDashboard() {
                         Submitted: {new Date(sos.created_at).toLocaleString()}
                       </p>
                     </div>
-                    <button
+                      <button
                       onClick={() => handleResolveSOS(sos.id)}
                       className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
                     >
@@ -292,19 +341,18 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               ))}
-            </div>
+            </div>}
           </div>
-        )}
 
         {/* Incident Management */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <AlertTriangle className="w-6 h-6 text-yellow-600" />
             Incident Reports ({filteredIncidents.length})
           </h2>
 
           {/* Filter */}
-          <div className="mb-6 flex gap-2">
+          <div className="mb-6 flex flex-wrap gap-2">
             {['all', 'unverified', 'verified', 'resolved'].map((status) => (
               <button
                 key={status}
@@ -355,7 +403,7 @@ export default function AdminDashboard() {
                         <p className="text-gray-700">{incident.description}</p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <p className="text-xs text-gray-600 mb-1">Location</p>
                           <p className="text-sm font-mono">

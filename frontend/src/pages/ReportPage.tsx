@@ -92,28 +92,49 @@ export default function ReportPage() {
     setError('');
     setSuccess('');
 
+    let queuedRequest: { request_id: string; user_id: string; latitude: number; longitude: number; message: string } | null = null;
     try {
-      const response = await fetch(`http://localhost:8000/api/sos?user_id=${userId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          latitude: userLocation.lat,
-          longitude: userLocation.lng,
-          message: sosData.message || 'Emergency SOS request'
-        }),
-      });
+      queuedRequest = JSON.parse(localStorage.getItem('crisiscompass_pending_sos') || 'null');
+    } catch { /* A malformed local draft can be replaced with a fresh request. */ }
+    if (queuedRequest && queuedRequest.user_id !== userId) {
+      setError('A pending SOS draft belongs to a different sign-in. Sign in as that user to retry it. Call 112 for immediate help.');
+      return;
+    }
+    if (!queuedRequest) {
+      queuedRequest = {
+        request_id: crypto.randomUUID?.() || `sos-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        user_id: userId || '',
+        latitude: userLocation.lat,
+        longitude: userLocation.lng,
+        message: sosData.message || 'Emergency SOS request',
+      };
+      localStorage.setItem('crisiscompass_pending_sos', JSON.stringify(queuedRequest));
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 10000);
+      let response: Response;
+      try {
+        response = await fetch(`/api/sos?user_id=${userId}`, {
+          method: 'POST',
+          signal: controller.signal,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(queuedRequest),
+        });
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
 
       if (!response.ok) throw new Error('Failed to send SOS');
-      
-      setSuccess('SOS request sent! Recorded in authority queue. Dial 112 for immediate dispatch.');
+      localStorage.removeItem('crisiscompass_pending_sos');
+      setSuccess('SOS saved to this app server’s authority queue. It does not automatically call or dispatch emergency services; call 112 now for immediate help.');
       setSosData({ message: '' });
       setShowSOSModal(false);
       
       setTimeout(() => setSuccess(''), 5000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError('SOS is saved on this device but has not reached the Authority Desk. Retry when connected, and call 112 now for immediate help.');
     } finally {
       setLoading(false);
     }
@@ -206,7 +227,7 @@ export default function ReportPage() {
         {/* Floating Emergency SOS Button */}
         <button
           onClick={() => setShowSOSModal(true)}
-          className="fixed bottom-8 right-8 w-16 h-16 bg-red-600 text-white rounded-full shadow-2xl hover:bg-red-700 flex items-center justify-center transform hover:scale-110 transition z-40"
+          className="fixed bottom-24 right-4 sm:bottom-8 sm:right-8 w-14 h-14 sm:w-16 sm:h-16 bg-red-600 text-white rounded-full shadow-2xl hover:bg-red-700 flex items-center justify-center transform hover:scale-110 transition z-30"
           title="Emergency SOS"
         >
           <AlertCircle className="w-8 h-8 animate-pulse" />
@@ -486,7 +507,7 @@ export default function ReportPage() {
               <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-2 animate-bounce" />
               <h2 className="text-2xl font-black text-gray-900">EMERGENCY SOS</h2>
               <p className="text-xs text-gray-600 mt-1">
-                Your GPS coordinates will be sent to the CrisisCompass authority desk.
+                When online, your GPS coordinates and account details are saved on this app’s server and shown in its protected Authority Desk. If the network is unavailable, the request stays on this device until you retry. No automatic dispatch occurs. Call 112 for immediate help.
               </p>
             </div>
 
@@ -495,6 +516,8 @@ export default function ReportPage() {
                 <strong>Current GPS:</strong> {userLocation.lat.toFixed(5)}°, {userLocation.lng.toFixed(5)}°
               </div>
             )}
+
+            {error && <p role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-800">{error}</p>}
 
             <textarea
               value={sosData.message}

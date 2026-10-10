@@ -7,6 +7,8 @@ import {
   Volume2, VolumeX, Copy, Check, Radio, ExternalLink 
 } from 'lucide-react';
 
+import { fetchWithOfflineFallback } from '../utils/offlineCache';
+
 interface AlertsPageProps {
   currentLang: string;
 }
@@ -28,15 +30,15 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
   const fetchAlerts = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/alerts?lang=${currentLang}`);
-      if (res.ok) {
-        const data = await res.json();
-        const alertList: Alert[] = data.alerts || [];
-        setAlerts(alertList);
-        setFilteredAlerts(alertList);
-        if (alertList.length > 0 && !selectedAlertForTrans) {
-          setSelectedAlertForTrans(alertList[0]);
-        }
+      const payload = await fetchWithOfflineFallback<{ alerts: Alert[] }>(
+        `/api/alerts?lang=${currentLang}`,
+        `alerts_page_${currentLang}`
+      );
+      const alertList: Alert[] = payload.data.alerts || [];
+      setAlerts(alertList);
+      setFilteredAlerts(alertList);
+      if (alertList.length > 0 && !selectedAlertForTrans) {
+        setSelectedAlertForTrans(alertList[0]);
       }
     } catch (e) {
       console.error('Error fetching alerts:', e);
@@ -47,7 +49,12 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
 
   useEffect(() => {
     fetchAlerts();
+    const interval = setInterval(() => {
+      if (navigator.onLine) fetchAlerts();
+    }, 60000);
+    return () => clearInterval(interval);
   }, [currentLang]);
+
 
   useEffect(() => {
     let result = [...alerts];
@@ -104,13 +111,13 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-[#DF4444] text-xs font-bold mb-2">
             <Radio className="w-3.5 h-3.5 animate-pulse" />
-            Verified Civil Defense Broadcasts
+            CrisisCompass Alert Registry
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-[#0F4C5C]">
             {t.live_alerts_title}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Real-time storm bulletins, flood advisories and official evacuation orders.
+            Live flood alerts come from GDACS worldwide and may include recent or historical events. India-specific IMD and NDMA alerts are not connected; verify urgent warnings with local authorities.
           </p>
         </div>
 

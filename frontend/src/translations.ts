@@ -14,10 +14,6 @@ export const SUPPORTED_LANGUAGES: LanguageOption[] = [
   { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ', dir: 'ltr' },
   { code: 'bn', name: 'Bengali', nativeName: 'বাংলা', dir: 'ltr' },
   { code: 'mr', name: 'Marathi', nativeName: 'मराठी', dir: 'ltr' },
-  { code: 'ar', name: 'Arabic', nativeName: 'العربية', dir: 'rtl' },
-  { code: 'zh-CN', name: 'Chinese (Simplified)', nativeName: '简体中文', dir: 'ltr' },
-  { code: 'ja', name: 'Japanese', nativeName: '日本語', dir: 'ltr' },
-  { code: 'de', name: 'German', nativeName: 'Deutsch', dir: 'ltr' },
 ];
 
 export const TRANSLATIONS: Record<string, Record<string, string>> = {

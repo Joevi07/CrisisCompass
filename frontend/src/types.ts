@@ -6,7 +6,8 @@ export type DataOrigin =
   | 'verified_facility_source' 
   | 'user_report' 
   | 'simulated_demo_data' 
-  | 'cached_provider_data';
+  | 'cached_provider_data'
+  | 'community_map_data';
 
 export type HazardType = 'flood' | 'cyclone' | 'storm' | 'heavy_rain' | 'tsunami' | 'heatwave' | 'restricted' | 'other';
 export type FacilityType = 'shelter' | 'hospital' | 'relief_camp' | 'emergency_service';

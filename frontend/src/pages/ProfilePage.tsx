@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { TRANSLATIONS as translations } from '../translations';
+import { TRANSLATIONS as translations, SUPPORTED_LANGUAGES } from '../translations';
+import { fetchWithOfflineFallback, saveCache } from '../utils/offlineCache';
 
 
 interface UserProfile {
@@ -33,7 +34,8 @@ export default function ProfilePage() {
   });
 
   const currentUserId = userId || localStorage.getItem('userId');
-  const currentLanguage = localStorage.getItem('userLanguage') || 'en';
+  const savedLanguage = localStorage.getItem('traveltech_language') || localStorage.getItem('userLanguage') || 'en';
+  const currentLanguage = SUPPORTED_LANGUAGES.some((language) => language.code === savedLanguage) ? savedLanguage : 'en';
   const t = translations[currentLanguage as keyof typeof translations] || translations['en'];
 
   useEffect(() => {
@@ -47,16 +49,18 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:8000/api/users/${currentUserId}`);
-      if (!response.ok) throw new Error('Failed to fetch profile');
-      
-      const data = await response.json();
-      setUser(data);
+      const payload = await fetchWithOfflineFallback<UserProfile>(`/api/users/${currentUserId}`, `profile_${currentUserId}`);
+      const data = payload.data;
+      const preferredLanguage = SUPPORTED_LANGUAGES.some((language) => language.code === data.language_preference)
+        ? data.language_preference
+        : 'en';
+      const localizedProfile = { ...data, language_preference: preferredLanguage };
+      setUser(localizedProfile);
       setFormData({
         full_name: data.full_name,
         phone_number: data.phone_number || '',
         destination: data.destination,
-        language_preference: data.language_preference,
+        language_preference: preferredLanguage,
         emergency_contact: data.emergency_contact || ''
       });
     } catch (err) {
@@ -76,7 +80,7 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/users/${currentUserId}`, {
+      const response = await fetch(`/api/users/${currentUserId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -88,8 +92,14 @@ export default function ProfilePage() {
       
       const updated = await response.json();
       setUser(updated);
+      saveCache(`profile_${updated.id}`, updated);
+      saveCache(`profile_email_${updated.email.trim().toLowerCase()}`, updated);
+      localStorage.setItem('userFullName', updated.full_name);
+      localStorage.setItem('userEmail', updated.email);
+      window.dispatchEvent(new Event('crisiscompass-auth-change'));
       setIsEditing(false);
       localStorage.setItem('userLanguage', updated.language_preference);
+      localStorage.setItem('traveltech_language', updated.language_preference);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     }
@@ -99,7 +109,7 @@ export default function ProfilePage() {
     if (!window.confirm('Are you sure you want to delete your account?')) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/api/users/${currentUserId}`, {
+      const response = await fetch(`/api/users/${currentUserId}`, {
         method: 'DELETE',
       });
 
@@ -107,7 +117,9 @@ export default function ProfilePage() {
       
       localStorage.removeItem('userId');
       localStorage.removeItem('userEmail');
+      localStorage.removeItem('userFullName');
       localStorage.removeItem('userLanguage');
+      window.dispatchEvent(new Event('crisiscompass-auth-change'));
       navigate('/register');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -240,15 +252,13 @@ export default function ProfilePage() {
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="en">English</option>
-                  <option value="ta">Tamil</option>
-                  <option value="hi">Hindi</option>
-                  <option value="fr">French</option>
-                  <option value="es">Spanish</option>
+                  {SUPPORTED_LANGUAGES.map((language) => (
+                    <option key={language.code} value={language.code}>{language.nativeName}</option>
+                  ))}
                 </select>
               ) : (
                 <p className="text-gray-900 py-2">
-                  {user.language_preference.toUpperCase()}
+                  {SUPPORTED_LANGUAGES.find((language) => language.code === user.language_preference)?.nativeName || 'हिन्दी'}
                 </p>
               )}
             </div>
