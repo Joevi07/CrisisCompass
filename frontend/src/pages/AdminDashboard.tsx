@@ -203,7 +203,6 @@ export default function AdminDashboard() {
           <label htmlFor="authority-code" className="mb-2 block text-sm font-semibold text-slate-700">Authority access code</label>
           <input id="authority-code" type="password" autoComplete="current-password" required value={accessCode} onChange={(event) => setAccessCode(event.target.value)} className="w-full rounded-lg border border-slate-300 px-3 py-3 text-base focus:border-[#0F4C5C] focus:outline-none" />
           <button disabled={loginLoading} className="mt-4 w-full rounded-lg bg-[#0F4C5C] px-4 py-3 font-bold text-white disabled:opacity-60">{loginLoading ? 'Signing in…' : 'Sign in to Authority Desk'}</button>
-          <p className="mt-4 text-xs leading-relaxed text-slate-500">The server administrator must configure <code>ADMIN_ACCESS_CODE</code> and <code>ADMIN_TOKEN_SECRET</code> in the backend environment before authority sign-in is available.</p>
         </form>
       </div>
     );

@@ -125,12 +125,11 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
           {/* Brand Logo & Sync Status */}
           <div className="p-6 border-b border-slate-100">
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-[#0F4C5C] flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform duration-200">
-                <div className="flex items-center gap-0.5">
-                  <div className="w-2.5 h-5 bg-[#38BDAC] rounded-xs transform -skew-x-12"></div>
-                  <div className="w-2.5 h-6 bg-white rounded-xs transform skew-x-12"></div>
-                </div>
-              </div>
+              <img
+                src="/crisis-compass-logo.png"
+                alt="CrisisCompass compass logo"
+                className="h-10 w-10 shrink-0 rounded-xl object-contain shadow-sm transition-transform duration-200 group-hover:scale-105"
+              />
               <div>
                 <span className="font-black text-xl tracking-tight text-[#0F4C5C]">CrisisCompass</span>
                 <p className="text-[10px] font-semibold text-slate-400">TravelTech Safety Platform</p>
