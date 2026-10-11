@@ -39,6 +39,7 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   // Target translation language independent from general app language
   const [targetLang, setTargetLang] = useState<string>(() => {
@@ -93,6 +94,7 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
   // Fetch alerts from backend
   const fetchAlerts = async () => {
     setLoading(true);
+    setFetchError(null);
     try {
       const payload = await fetchWithOfflineFallback<{ alerts: Alert[] }>(
         `/api/alerts?lang=${targetLang}`,
@@ -110,6 +112,7 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
       }
     } catch (e) {
       console.error('Error fetching alerts:', e);
+      setFetchError(e instanceof Error ? e.message : 'Live disaster alerts feed is currently unavailable.');
     } finally {
       setLoading(false);
     }
@@ -450,6 +453,21 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
             />
           </div>
 
+          {fetchError && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-800 text-xs flex items-center justify-between gap-3 font-semibold">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                <span>{fetchError} Showing offline or saved bulletins if available.</span>
+              </div>
+              <button
+                onClick={fetchAlerts}
+                className="px-3 py-1 bg-white border border-red-200 text-red-700 rounded-xl text-xs font-bold hover:bg-red-100 transition shrink-0 cursor-pointer"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
           {loading ? (
             <div className="text-center py-16 text-slate-400 text-sm flex items-center justify-center gap-2">
               <Loader2 className="w-5 h-5 animate-spin text-[#0F4C5C]" />
@@ -474,7 +492,7 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ currentLang }) => {
           ) : (
             <div className="bg-white rounded-3xl p-12 text-center border border-slate-100">
               <p className="text-slate-600 font-bold mb-1">No active advisories found</p>
-              <p className="text-xs text-slate-400">All Indian sectors are currently reporting standard parameters.</p>
+              <p className="text-xs text-slate-400">All Indian sectors are currently reporting standard parameters or live feed data is currently unavailable.</p>
             </div>
           )}
         </div>

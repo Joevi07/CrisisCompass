@@ -55,7 +55,7 @@ export default function RoutePage() {
   const [navigationActive, setNavigationActive] = useState(false);
 
   useEffect(() => {
-    if (navigator.geolocation) {
+    if (navigator.geolocation && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setUserLocation({
@@ -64,8 +64,20 @@ export default function RoutePage() {
           });
           setStartLocation(`${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
         },
-        (error) => console.log('Location error:', error)
+        (_error) => {
+          // Fallback to saved center or Chennai default
+          const defaultLat = 13.0827;
+          const defaultLng = 80.2707;
+          setUserLocation({ lat: defaultLat, lng: defaultLng });
+          setStartLocation(`${defaultLat.toFixed(4)}, ${defaultLng.toFixed(4)}`);
+        },
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
       );
+    } else {
+      const defaultLat = 13.0827;
+      const defaultLng = 80.2707;
+      setUserLocation({ lat: defaultLat, lng: defaultLng });
+      setStartLocation(`${defaultLat.toFixed(4)}, ${defaultLng.toFixed(4)}`);
     }
   }, []);
 

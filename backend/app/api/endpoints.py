@@ -49,11 +49,12 @@ async def get_alerts(
     latitude: Optional[float] = Query(None, ge=-90, le=90),
     longitude: Optional[float] = Query(None, ge=-180, le=180),
     radius_km: float = Query(500, ge=1, le=2000),
+    india_only: bool = Query(True, description="Enforce India alerts only"),
 ):
     try:
-        alerts = await live_geo_service.flood_alerts(location, latitude, longitude, radius_km)
+        alerts = await live_geo_service.flood_alerts(location, latitude, longitude, radius_km, india_only=india_only)
     except Exception:
-        raise HTTPException(status_code=503, detail="Live disaster feed is temporarily unavailable. Showing saved feed data where available.")
+        raise HTTPException(status_code=503, detail="Live disaster feed is temporarily unavailable. Check connection or try again later.")
 
     if severity:
         alerts = [alert for alert in alerts if alert.severity.value.lower() == severity.lower()]

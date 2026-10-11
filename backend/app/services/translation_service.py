@@ -366,9 +366,122 @@ ALERT_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "ar": "توخَّ الحذر بالقرب من ضفاف الأنهار ومراسي القوارب. تجنب ركوب العبّارات أثناء ارتفاع منسوب المياه.",
         "zh-CN": "在河岸及游船码头附近务必格外小心。洪峰水位上涨期间请勿乘坐轮渡。",
         "ja": "河川敷や船着き場周辺では厳重に警戒してください。増水・ピーク時のフェリー乗船は避けてください。",
-        "de": "Vorsicht an Flussufern und Bootsanlegern. Vermeiden Sie Fährfahrten während des Höchststands.",
-        "fr": "Soyez prudent aux abords des berges et embarcadères. Évitez les traversées en ferry pendant les crues.",
-        "es": "Extreme precauciones en riberas y embarcaderos. Evite el traslado en ferry durante la crecida máxima."
+        "de": "Vorsicht an Flussufern und Bootsanlegern. Vermeiden Sie Fährfahrten während des Höchststands."
+    },
+    "Monitor water levels closely, avoid low-lying roads and culverts, and follow State Disaster Management instructions.": {
+        "ta": "நீர் மட்டத்தை உன்னிப்பாகக் கவனியுங்கள், தாழ்வான சாலைகள் மற்றும் சிறுபாலங்களைத் தவிர்க்கவும், மாநில பேரிடர் மேலாண்மை வழிமுறைகளைப் பின்பற்றவும்.",
+        "hi": "जलस्तर पर कड़ी निगरानी रखें, निचले इलाकों की सड़कों और पुलियों से बचें और राज्य आपदा प्रबंधन के निर्देशों का पालन करें।",
+        "te": "నీటి మట్టాలను నిశితంగా పరిశీలించండి, లోతట్టు రోడ్లు మరియు కల్వర్టులను నివారించండి, రాష్ట్ర విపత్తు నిర్వహణ సూచనలను పాటించండి.",
+        "ml": "ജലനിരപ്പ് സൂക്ഷ്മമായി നിരീക്ഷിക്കുക, താഴ്ന്ന റോഡുകളും കലുങ്കുകളും ഒഴിവാക്കുക, സംസ്ഥാന ദുരന്ത നിവാരണ അതോറിറ്റിയുടെ നിർദ്ദേശങ്ങൾ പാലിക്കുക.",
+        "kn": "ನೀರಿನ ಮಟ್ಟವನ್ನು ಸೂಕ್ಷ್ಮವಾಗಿ ಗಮನಿಸಿ, ತಗ್ಗು ರಸ್ತೆಗಳನ್ನು ತಪ್ಪಿಸಿ ಮತ್ತು ರಾಜ್ಯ ವಿಪತ್ತು ನಿರ್ವಹಣಾ ಪ್ರಾಧಿಕಾರದ ಸೂಚನೆಗಳನ್ನು ಪಾಲಿಸಿ.",
+        "bn": "জলের স্তর নিবিড়ভাবে পর্যবেক্ষণ করুন, নিম্নাঞ্চলের রাস্তা ও কালভার্ট এড়িয়ে চলুন এবং রাজ্য বিপর্যয় মোকাবিলা দপ্তরের নির্দেশাবলী অনুসরণ করুন।",
+        "mr": "पाण्याच्या पातळीवर लक्ष ठेवा, सखल भागातील रस्ते टाळा आणि राज्य आपत्ती व्यवस्थापनाच्या सूचनांचे पालन करा.",
+        "ar": "راقب مناسيب المياه بعناية، وتجنب الطرق المنخفضة والجسور، واتبع تعليمات إدارة الكوارث الحكومية.",
+        "zh-CN": "密切监测水位动态，避开低洼路段及涵洞，严格遵守当地防灾救灾部门应急指引。",
+        "ja": "河川水深の変化を注視し、冠水道路や暗渠を避け、州災害対策局の避難指示に従ってください。",
+        "de": "Wasserstände aufmerksam beobachten, tiefliegende Straßen und Durchlässe meiden und Anweisungen des Katastrophenschutzes befolgen.",
+        "fr": "Surveillez de près le niveau de l'eau, évitez les routes inondables et suivez les instructions des services de gestion des catastrophes.",
+        "es": "Monitoree de cerca los niveles de agua, evite carreteras bajas y vados, y siga las instrucciones de gestión de desastres."
+    },
+    "Avoid coastal promenades, secure outdoor property, and heed regional cyclone warning center advisories.": {
+        "ta": "கடற்கரை நடைபாதைகளைத் தவிர்க்கவும், வெளிப்புற உடைமைகளைப் பாதுகாப்பாக வைக்கவும், மண்டல புயல் எச்சரிக்கை மையத்தின் அறிவுரைகளைக் கவனிக்கவும்.",
+        "hi": "समुद्र तटों से दूर रहें, बाहरी संपत्तियों को सुरक्षित रखें और क्षेत्रीय चक्रवात चेतावनी केंद्र की सलाह पर ध्यान दें।",
+        "te": "తీరప్రాంత నడక మార్గాలను నివారించండి, బహిరంగ ఆస్తులను భద్రపరచండి, ప్రాంతీయ తుఫాను హెచ్చరిక కేంద్రం సలహాలను పాటించండి.",
+        "ml": "തീരദേശ റോഡുകൾ ഒഴിവാക്കുക, സാധനങ്ങൾ സുരक्षितമായി വെക്കുക, ചുഴലിക്കാറ്റ് മുന്നറിയിപ്പ് കേന്ദ്രത്തിന്റെ നിർദ്ദേശങ്ങൾ പാലിക്കുക.",
+        "kn": "ಕರಾವಳಿ ಪ್ರದೇಶಗಳಿಂದ ದೂರವಿರಿ, ಹೊರಾಂಗಣ ವಸ್ತುಗಳನ್ನು ಭದ್ರಪಡಿಸಿ ಮತ್ತು ಚಂಡಮಾರುತ ಎಚ್ಚರಿಕೆ ಕೇಂದ್ರದ ಸಲಹೆಗಳನ್ನು ಗಮನಿಸಿ.",
+        "bn": "উপকূলীয় এলাকা এড়িয়ে চলুন, বহিরঙ্গন সম্পত্তি সুরক্ষিত করুন এবং আঞ্চলিক ঘূর্ণিঝড় সতর্কতা কেন্দ্রের পরামর্শ মেনে চলুন।",
+        "mr": "समुद्रकिनाऱ्यावरून फिरणे टाळा, बाहेरील सामान सुरक्षित ठेवा आणि प्रादेशिक चक्रीवादळ इशारा केंद्राच्या सूचनांचे पालन करा.",
+        "ar": "تجنب كورنيش الساحل، وقم بتأمين الممتلكات الخارجية، واطلع على تحذيرات مركز الأرصاد الجوية الإقليمي للأعاصير.",
+        "zh-CN": "远离海滨漫步区，固定室外财产设施，严格遵循区域气旋预警中心发布的防灾指引。",
+        "ja": "海岸遊歩道には近づかず、屋外の私物を屋内退避・固定し、気象庁・サイクロン警報センターの発表に留意してください。",
+        "de": "Küstenpromenaden meiden, Gegenstände sichern und Hinweise der regionalen Zyklon-Warnzentrale beachten.",
+        "fr": "Évitez le front de mer, arrimez les biens extérieurs et tenez compte des alertes du centre cyclonique régional.",
+        "es": "Evite paseos costeros, asegure pertenencias al aire libre y atienda a los avisos del centro meteorológico de ciclones."
+    },
+    "Stay hydrated, minimize prolonged outdoor exposure during peak daylight, and follow local water preservation guidelines.": {
+        "ta": "போதுமான நீர் அருந்துங்கள், பகல் வெயிலில் நீண்ட நேரம் இருப்பதைத் தவிர்க்கவும், உள்ளூர் நீர் சேமிப்பு வழிகாட்டுதல்களைப் பின்பற்றவும்.",
+        "hi": "पर्याप्त पानी पिएं, दिन के चरम समय में बाहर धूप में निकलने से बचें और स्थानीय जल संरक्षण दिशानिर्देशों का पालन करें।",
+        "te": "తగినంత నీరు త్రాగండి, ఎండ తీవ్రత ఎక్కువగా ఉన్నప్పుడు బయటకు వెళ్లడం తగ్గించండి, నీటి సంరక్షణ మార్గదర్శకాలను పాటించండి.",
+        "ml": "ധാരാളം വെള്ളം കുടിക്കുക, കഠിനമായ വെയിലത്ത് പുറത്തിറങ്ങുന്നത് ഒഴിവാക്കുക, ജലസംരക്ഷണ നിർദ്ദേശങ്ങൾ പാലിക്കുക.",
+        "kn": "ಸಾಕಷ್ಟು ನೀರು ಕುಡಿಯಿರಿ, ಬಿಸಿಲಿನಲ್ಲಿ ಹೆಚ್ಚು ಹೊತ್ತು ಇರುವುದನ್ನು ತಪ್ಪಿಸಿ ಮತ್ತು ನೀರಿನ ಸಂರಕ್ಷಣಾ ನಿಯಮಗಳನ್ನು ಪಾಲಿಸಿ.",
+        "bn": "প্রচুর জল পান করুন, প্রখর রোদে দীর্ঘক্ষণ থাকা এড়িয়ে চলুন এবং স্থানীয় জল সংরক্ষণ নির্দেশিকা মেনে চলুন।",
+        "mr": "भरपूर पाणी प्या, भर उन्हात फिरणे टाळा आणि स्थानिक पाणी संवर्धन नियमांचे पालन करा.",
+        "ar": "اشرب كميات كافية من الماء، وتجنب التعرض المطول لأشعة الشمس أثناء النهار، واتبع إرشادات ترشيد استهلاك المياه.",
+        "zh-CN": "多饮水补充体液，高温时段减少户外逗留，并配合执行当地节约用水应急倡议。",
+        "ja": "十分な水分補給を行い、日中の炎天下での長時間の外出を避け、地域の節水指針に従ってください。",
+        "de": "Ausreichend trinken, längere Aufenthalte in der prallen Sonne vermeiden und Vorgaben zur Wassereinsparung einhalten.",
+        "fr": "Hydratez-vous régulièrement, évitez les expositions prolongées au soleil et respectez les consignes de préservation de l'eau.",
+        "es": "Manténgase hidratado, evite exposición prolongada al sol durante horas pico y cumpla las pautas locales de ahorro de agua."
+    }
+}
+
+# State name native translations for dynamic alert titles
+STATE_NAME_TRANSLATIONS: Dict[str, Dict[str, str]] = {
+    "Uttar Pradesh": {
+        "ta": "உத்தரப் பிரதேசம்", "hi": "उत्तर प्रदेश", "te": "ఉత్తర ప్రదేశ్", "ml": "ഉത്തർപ്രദേശ്",
+        "kn": "ಉತ್ತರ ಪ್ರದೇಶ", "bn": "উত্তরপ্রদেশ", "mr": "उत्तर प्रदेश", "ar": "أوتار براديش",
+        "zh-CN": "北方邦", "ja": "ウッタル・プラデーシュ州", "de": "Uttar Pradesh", "fr": "Uttar Pradesh", "es": "Uttar Pradesh"
+    },
+    "Sikkim": {
+        "ta": "சிக்கிம்", "hi": "सिक्किम", "te": "సిక్కిం", "ml": "സിക്കിം",
+        "kn": "ಸಿಕ್ಕಿಂ", "bn": "সিকিম", "mr": "सिक्कीम", "ar": "سيكيم",
+        "zh-CN": "锡金邦", "ja": "シッキム州", "de": "Sikkim", "fr": "Sikkim", "es": "Sikkim"
+    },
+    "West Bengal": {
+        "ta": "மேற்கு வங்காளம்", "hi": "पश्चिम बंगाल", "te": "పశ్చిమ బెంగాల్", "ml": "പശ്ചിമ ബംഗാൾ",
+        "kn": "ಪಶ್ಚಿಮ ಬಂಗಾಳ", "bn": "পশ্চিমবঙ্গ", "mr": "पश्चिम बंगाल", "ar": "البنغال الغربية",
+        "zh-CN": "西孟加拉邦", "ja": "西ベンガル州", "de": "Westbengalen", "fr": "Bengale-Occidental", "es": "Bengala Occidental"
+    },
+    "Karnataka": {
+        "ta": "கர்நாடகா", "hi": "कर्नाटक", "te": "కర్ణాటక", "ml": "കർണാടക",
+        "kn": "ಕರ್ನಾಟಕ", "bn": "কর্ণাটক", "mr": "कर्नाटक", "ar": "كارناتاكا",
+        "zh-CN": "卡纳塔克邦", "ja": "カルナータカ州", "de": "Karnataka", "fr": "Karnataka", "es": "Karnataka"
+    },
+    "Andhra Pradesh": {
+        "ta": "ஆந்திரப் பிரதேசம்", "hi": "आंध्र प्रदेश", "te": "ఆంధ్ర ప్రదేశ్", "ml": "ആന്ധ്രാപ്രദേശ്",
+        "kn": "ಆಂಧ್ರ ಪ್ರದೇಶ", "bn": "অন্ধ্রপ্রদেশ", "mr": "आंध्र प्रदेश", "ar": "أندرا براديش",
+        "zh-CN": "安得拉邦", "ja": "アーンドラ・プラデーシュ州", "de": "Andhra Pradesh", "fr": "Andhra Pradesh", "es": "Andhra Pradesh"
+    },
+    "Southern India": {
+        "ta": "தென்னிந்தியா", "hi": "दक्षिण भारत", "te": "దక్షిణ భారతదేశం", "ml": "ദക്ഷിണേന്ത്യ",
+        "kn": "ದಕ್ಷಿಣ ಭಾರತ", "bn": "দক্ষিণ ভারত", "mr": "दक्षिण भारत", "ar": "جنوب الهند",
+        "zh-CN": "印度南部", "ja": "南インド", "de": "Südindien", "fr": "Inde du Sud", "es": "Sur de la India"
+    }
+}
+
+HAZARD_TYPE_TRANSLATIONS: Dict[str, Dict[str, str]] = {
+    "Flood Alert": {
+        "ta": "வெள்ள அபாய எச்சரிக்கை", "hi": "बाढ़ चेतावनी", "te": "వరద హెచ్చరిక", "ml": "പ്രളയ മുന്നറിയിപ്പ്",
+        "kn": "ಪ್ರವಾಹ ಎಚ್ಚರಿಕೆ", "bn": "বন্যার সতর্কতা", "mr": "पूर इशारा", "ar": "تحذير من الفيضانات",
+        "zh-CN": "洪水预警", "ja": "洪水警報", "de": "Hochwasserwarnung", "fr": "Alerte aux inondations", "es": "Alerta de inundación"
+    },
+    "Cyclone Warning": {
+        "ta": "புயல் எச்சரிக்கை", "hi": "चक्रवात चेतावनी", "te": "తుఫాను హెచ్చరిక", "ml": "ചുഴലിക്കാറ്റ് മുന്നറിയിപ്പ്",
+        "kn": "ಚಂಡಮಾರುತ ಎಚ್ಚರಿಕೆ", "bn": "ঘূর্ণিঝড় সতর্কতা", "mr": "चक्रीवादळ इशारा", "ar": "تحذير من إعصار مداري",
+        "zh-CN": "气旋风暴警报", "ja": "サイクロン警戒警報", "de": "Zyklonwarnung", "fr": "Alerte cyclonique", "es": "Alerta de ciclón"
+    },
+    "Drought & Heat Advisory": {
+        "ta": "வறட்சி & வெப்ப ஆலோசனை", "hi": "सूखा एवं लू परामर्श", "te": "కరువు మరియు వేడి సలహా", "ml": "വരൾച്ചയും കഠിന ചൂടും ജാഗ്രതാ നിർദ്ദേശം",
+        "kn": "ಬರ ಮತ್ತು ಬಿಸಿಲು ಸಲಹೆ", "bn": "খরা ও তাপপ্রবাহ পরামর্শ", "mr": "दुष्काळ आणि उष्णतेचा सल्ला", "ar": "إشعار الجفاف وموجة الحر",
+        "zh-CN": "干旱与高温预警提示", "ja": "干ばつ・熱波注意報", "de": "Dürre- und Hitzewarnung", "fr": "Avis de sécheresse et de forte chaleur", "es": "Aviso de sequía y calor extremo"
+    }
+}
+
+SEVERITY_WORD_TRANSLATIONS: Dict[str, Dict[str, str]] = {
+    "Orange": {
+        "ta": "ஆரஞ்சு", "hi": "ऑरेंज", "te": "ఆరెంజ్", "ml": "ഓറഞ്ച്",
+        "kn": "ಕಿತ್ತಳೆ", "bn": "কমলা", "mr": "केशरी", "ar": "برتقالي",
+        "zh-CN": "橙色", "ja": "オレンジ色", "de": "Orange", "fr": "Orange", "es": "Naranja"
+    },
+    "Green": {
+        "ta": "பச்சை", "hi": "ग्रीन", "te": "గ్రీన్", "ml": "പച്ച",
+        "kn": "ಹಸಿರು", "bn": "সবুজ", "mr": "हिरवा", "ar": "أخضر",
+        "zh-CN": "绿色", "ja": "緑色", "de": "Grün", "fr": "Vert", "es": "Verde"
+    },
+    "Red": {
+        "ta": "சிவப்பு", "hi": "रेड", "te": "రెడ్", "ml": "റെഡ്",
+        "kn": "ಕೆಂಪು", "bn": "লাল", "mr": "लाल", "ar": "أحمر",
+        "zh-CN": "红色", "ja": "赤色", "de": "Rot", "fr": "Rouge", "es": "Rojo"
     }
 }
 
@@ -382,9 +495,9 @@ class TranslationService:
             return text
         
         target = target_lang.strip()
+        clean_text = text.strip()
         
         # 1. First check alert-specific direct translations (full phrase match)
-        clean_text = text.strip()
         if clean_text in ALERT_TRANSLATIONS:
             if target in ALERT_TRANSLATIONS[clean_text]:
                 return ALERT_TRANSLATIONS[clean_text][target]
@@ -394,6 +507,37 @@ class TranslationService:
             if clean_text == eng_val.strip():
                 if target in TRANSLATIONS and eng_key in TRANSLATIONS[target]:
                     return TRANSLATIONS[target][eng_key]
+
+        # 3. Dynamic composition for live alert titles: "[Level] [Hazard] – [State], India"
+        if " – " in clean_text or " - " in clean_text:
+            sep = " – " if " – " in clean_text else " - "
+            prefix, location_part = clean_text.split(sep, 1)
+            
+            # Translate state
+            translated_state = location_part.strip()
+            for st, st_trans in STATE_NAME_TRANSLATIONS.items():
+                if st.lower() in location_part.lower() and target in st_trans:
+                    translated_state = st_trans[target]
+                    break
+
+            # Translate prefix parts (Severity + Hazard)
+            translated_prefix = prefix.strip()
+            for hz, hz_trans in HAZARD_TYPE_TRANSLATIONS.items():
+                if hz.lower() in prefix.lower() and target in hz_trans:
+                    hazard_word = hz_trans[target]
+                    # Check for severity color
+                    sev_found = None
+                    for sev, sev_trans in SEVERITY_WORD_TRANSLATIONS.items():
+                        if sev.lower() in prefix.lower() and target in sev_trans:
+                            sev_found = sev_trans[target]
+                            break
+                    if sev_found:
+                        translated_prefix = f"{sev_found} {hazard_word}"
+                    else:
+                        translated_prefix = hazard_word
+                    break
+
+            return f"{translated_prefix} – {translated_state}"
 
         return text
 

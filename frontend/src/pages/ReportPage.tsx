@@ -14,6 +14,9 @@ export default function ReportPage() {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationName, setLocationName] = useState<string>('Detecting location...');
+  const [locationErrorMsg, setLocationErrorMsg] = useState<string>('');
+  const [isLocating, setIsLocating] = useState<boolean>(false);
   const [incidents, setIncidents] = useState<IncidentReport[]>([]);
 
   // Check-in state
@@ -33,24 +36,100 @@ export default function ReportPage() {
     photo_url: ''
   });
 
+  // Predefined popular Indian cities for instantaneous 1-click fallback
+  const INDIAN_CITIES = [
+    { name: 'Chennai, Tamil Nadu', lat: 13.0827, lng: 80.2707 },
+    { name: 'Mumbai, Maharashtra', lat: 18.9220, lng: 72.8347 },
+    { name: 'Puri, Odisha', lat: 19.8135, lng: 85.8312 },
+    { name: 'Kochi, Kerala', lat: 9.9656, lng: 76.2421 },
+    { name: 'Bengaluru, Karnataka', lat: 12.9716, lng: 77.5946 },
+    { name: 'Kolkata, West Bengal', lat: 22.5726, lng: 88.3639 },
+    { name: 'Delhi NCR', lat: 28.6139, lng: 77.2090 },
+    { name: 'Hyderabad, Telangana', lat: 17.3850, lng: 78.4867 },
+  ];
+
+  const requestGeolocation = () => {
+    setIsLocating(true);
+    setLocationErrorMsg('');
+
+    if (!navigator.geolocation) {
+      setLocationErrorMsg('Geolocation is not supported by your browser. Using saved city.');
+      applyFallbackLocation();
+      setIsLocating(false);
+      return;
+    }
+
+    // Check if insecure HTTP context
+    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      setLocationErrorMsg('Browser requires HTTPS for GPS location. Using manual/saved city.');
+      applyFallbackLocation();
+      setIsLocating(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+        setLocationName(`GPS: ${position.coords.latitude.toFixed(4)}°, ${position.coords.longitude.toFixed(4)}°`);
+        setLocationErrorMsg('');
+        setIsLocating(false);
+      },
+      (geoErr) => {
+        let msg = 'Could not get your location.';
+        if (geoErr.code === 1) {
+          msg = 'Location permission was denied. You can select your city manually below.';
+        } else if (geoErr.code === 2) {
+          msg = 'GPS location is unavailable on this device. You can select your city manually below.';
+        } else if (geoErr.code === 3) {
+          msg = 'Location request timed out. You can select your city manually below.';
+        }
+        setLocationErrorMsg(msg);
+        applyFallbackLocation();
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+    );
+  };
+
+  const applyFallbackLocation = () => {
+    // Try to load saved map center or saved user city
+    try {
+      const savedMap = localStorage.getItem('crisiscompass_map_center');
+      if (savedMap) {
+        const parsed = JSON.parse(savedMap);
+        if (Array.isArray(parsed) && parsed.length === 2) {
+          setUserLocation({ lat: parsed[0], lng: parsed[1] });
+          setLocationName(`Saved Area (${parsed[0].toFixed(2)}°, ${parsed[1].toFixed(2)}°)`);
+          return;
+        }
+      }
+    } catch { /* ignore */ }
+
+    // Default to Chennai, India
+    setUserLocation({ lat: 13.0827, lng: 80.2707 });
+    setLocationName('Chennai, Tamil Nadu (Default)');
+  };
+
+  const handleCitySelect = (cityName: string) => {
+    const found = INDIAN_CITIES.find(c => c.name === cityName);
+    if (found) {
+      setUserLocation({ lat: found.lat, lng: found.lng });
+      setLocationName(found.name);
+      setLocationErrorMsg('');
+    }
+  };
+
   useEffect(() => {
     if (!userId) {
       navigate('/register');
       return;
     }
     
-    // Get user location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
-        },
-        (error) => console.log('Location error:', error)
-      );
-    }
+    // Request location on mount
+    requestGeolocation();
     
     // Fetch user's incidents
     fetchIncidents();
@@ -84,9 +163,10 @@ export default function ReportPage() {
   };
 
   const handleSOS = async () => {
-    if (!userLocation) {
-      setError('Could not get your location. Please enable location services.');
-      return;
+    let loc = userLocation;
+    if (!loc) {
+      applyFallbackLocation();
+      loc = { lat: 13.0827, lng: 80.2707 };
     }
 
     setLoading(true);
@@ -105,8 +185,8 @@ export default function ReportPage() {
       queuedRequest = {
         request_id: crypto.randomUUID?.() || `sos-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         user_id: userId || '',
-        latitude: userLocation.lat,
-        longitude: userLocation.lng,
+        latitude: loc.lat,
+        longitude: loc.lng,
         message: sosData.message || 'Emergency SOS request',
       };
       localStorage.setItem('crisiscompass_pending_sos', JSON.stringify(queuedRequest));
@@ -142,9 +222,10 @@ export default function ReportPage() {
   };
 
   const handleReportIncident = async () => {
-    if (!userLocation) {
-      setError('Could not get your location. Please enable location services.');
-      return;
+    let loc = userLocation;
+    if (!loc) {
+      applyFallbackLocation();
+      loc = { lat: 13.0827, lng: 80.2707 };
     }
 
     if (!incidentData.title || !incidentData.description) {
@@ -165,8 +246,8 @@ export default function ReportPage() {
         body: JSON.stringify({
           title: incidentData.title,
           description: incidentData.description,
-          latitude: userLocation.lat,
-          longitude: userLocation.lng,
+          latitude: loc.lat,
+          longitude: loc.lng,
           incident_type: incidentData.incident_type,
           severity: incidentData.severity,
           photo_url: incidentData.photo_url
@@ -240,6 +321,45 @@ export default function ReportPage() {
           <p className="text-gray-600 text-sm">
             Report extreme weather hazards with GPS and photos, send SOS rescue alerts, share safety check-ins, or access emergency helplines.
           </p>
+
+          {/* Location Status & Manual Fallback Bar */}
+          <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <MapPin className={`w-4 h-4 shrink-0 ${locationErrorMsg ? 'text-amber-500' : 'text-blue-600'}`} />
+              <div>
+                <span className="font-bold text-slate-700">Reporting Location: </span>
+                <span className="text-slate-900 font-mono font-semibold">{locationName}</span>
+                {locationErrorMsg && (
+                  <p className="text-[11px] text-amber-700 font-medium mt-0.5">{locationErrorMsg}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={requestGeolocation}
+                disabled={isLocating}
+                className="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold border border-blue-200 transition cursor-pointer disabled:opacity-50"
+              >
+                {isLocating ? 'Locating...' : 'Detect GPS'}
+              </button>
+
+              <select
+                aria-label="Select location"
+                onChange={(e) => handleCitySelect(e.target.value)}
+                className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                defaultValue=""
+              >
+                <option value="" disabled>Manual City Select...</option>
+                {INDIAN_CITIES.map((c) => (
+                  <option key={c.name} value={c.name}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* Messages */}
