@@ -7,7 +7,7 @@ TravelTech CrisisCompass is a complete, modern, responsive full-stack emergency 
 
 ## 🌟 Key Features
 
-### ✅ MVP Features (Complete - January 2026)
+### ✅ MVP Features
 
 1. **Tourist Registration & Profile Management** *(NEW)*
    - User account creation with email and language preferences
