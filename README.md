@@ -5,9 +5,9 @@ TravelTech CrisisCompass is a complete, modern, responsive full-stack emergency 
 
 ---
 
-## 🌟 Key Features
+##  Key Features
 
-### ✅ MVP Features
+###  MVP Features
 
 1. **Tourist Registration & Profile Management** *(NEW)*
    - User account creation with email and language preferences
@@ -70,7 +70,7 @@ TravelTech CrisisCompass is a complete, modern, responsive full-stack emergency 
 
 ---
 
-## 📚 New MVP Feature Documentation
+##  New MVP Feature Documentation
 
 For detailed implementation information on the 4 new MVP features, see:
 
@@ -98,7 +98,7 @@ After running the app (see section below):
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Node.js (v18+) and npm
@@ -181,7 +181,7 @@ npm run build
 
 ---
 
-## 📋 Data Origin & Demo Policy
+##  Data Origin & Demo Policy
 
 To ensure transparency during academic and hackathon evaluations:
 - `live_weather_api`: Retrieved directly in real-time from Open-Meteo.
